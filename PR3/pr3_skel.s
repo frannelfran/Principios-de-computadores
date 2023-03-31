@@ -2,6 +2,11 @@
 
 maximoElementos=400 # numero de enteros maximo reservado para la matriz 1600 bytes
 size=4 # bytes que ocupa un entero
+
+    # Registros utilizados
+    # $s0 == nfil
+    # $s1 == ncol
+
     .data
 mat:   .word   100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119
        .word   120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139
@@ -72,8 +77,21 @@ main:
     li $v0,1
     move $a0,$s1 # Muestro las columnas de la matriz 
     syscall
-    # Mostrar matriz
+    li $v0,4
+    la $a0,newline # Nueva linea
+    syscall
+    # Mostrar Matriz
+    li $t1,0 # Inicializo las filas a 0
+    li $t2,0 # Incializo las filas a 0
+     
+    for1: bgt 
+    
 
+
+    
+
+
+    
 
 
     li $v0,10
