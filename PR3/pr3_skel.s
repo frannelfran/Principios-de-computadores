@@ -83,15 +83,25 @@ main:
     # Mostrar Matriz
     li $t1,0 # Inicializo las filas a 0
     li $t2,0 # Incializo las filas a 0
-     
-    for1: bgt 
-    
+    for1: bgt $t1,$s0,for1Fin
+        for2: bgt $t2,$s1,forFin2
+            mul $t3,$t1,$s1 # f*ncol
+            add $t3,$t3,$s1 # f*ncol+c
+            li $v0,1
+            move $a0,$t3 # Muestra el elemento
+            syscall
+            li $v0,4
+            la $a0,separador
+            syscall
+        for2Fin:
+        li $v0,4
+        la $a0,newline # Nueva linea 
+        syscall
+        add $t1,$t1,4 # Cambia al siguiente elemento 
+        add $t2,$t2,4 
+        b for1 # Se repite el bucle 
+    for1Fin:
 
-
-    
-
-
-    
 
 
     li $v0,10
