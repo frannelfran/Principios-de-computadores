@@ -3,10 +3,6 @@
 maximoElementos=400 # numero de enteros maximo reservado para la matriz 1600 bytes
 size=4 # bytes que ocupa un entero
 
-    # Registros utilizados
-    # $s0 == nfil
-    # $s1 == ncol
-
     .data
 mat:   .word   100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119
        .word   120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139
@@ -57,6 +53,12 @@ msg_max:    .asciiz "\nEl máximo de la diagonal principal es "
 msg_min:    .asciiz " y el mínimo "
 msg_fin:    .asciiz "\nFin del programa.\n"
 
+    # Registros utilizados
+    # $s0 == nfil
+    # $s1 == ncol
+    # $t1 == filas
+    # $t2 == columnas
+
 .text
 main:
     li $v0,4
@@ -66,41 +68,53 @@ main:
     li $v0,4
     la $a0,msg_matriz
     syscall
-    lw $s0,nfil # Cargo lo que esta almacenado en la dirección de las filas de la matriz en s0
+    lw $s1,nfil # Cargo lo que esta almacenado en la dirección de las filas de la matriz en s0
     li $v0,1
-    move $a0,$s0 # Muestro por consola las filas de la matriz
+    move $a0,$s1 # Muestro por consola las filas de la matriz
     syscall
     li $v0,4
     la $a0,msg_x # Muestra "x"
     syscall
-    lw $s1,ncol # Cargo lo que esta almacenado en la direccion de memoria de las columnas de la matriz en s1
+    lw $s2,ncol # Cargo lo que esta almacenado en la direccion de memoria de las columnas de la matriz en s1
     li $v0,1
-    move $a0,$s1 # Muestro las columnas de la matriz 
+    move $a0,$s2 # Muestro las columnas de la matriz 
     syscall
     li $v0,4
-    la $a0,newline # Nueva linea
+    la $a0,newline
     syscall
+
     # Mostrar Matriz
-    li $t1,0 # Inicializo las filas a 0
-    li $t2,0 # Incializo las filas a 0
-    for1: bgt $t1,$s0,for1Fin
-        for2: bgt $t2,$s1,forFin2
-            mul $t3,$t1,$s1 # f*ncol
-            add $t3,$t3,$s1 # f*ncol+c
+    la $s3,mat # Cargo la dirección base de la matriz en s3
+    for1: bgt $t1,$s1,for1Fin # for(f = 0; f < nfil; f++)
+        for2: bgt $t2,$s2,for2Fin # for(c = 0; c < ncol; c++)
+            li $t1,1
+            mul $t3,$t1,$t2 # Fila * columna
+            mul $t3,$t3,size # (Fila + columna) * 4
+            add $t3,$t3,$s3 # Busca la dirección del elemento
+            lw $t3,0($t3) # Carga la dirección del elemento en t3
             li $v0,1
-            move $a0,$t3 # Muestra el elemento
+            move $a0,$t3 # Muestra el elemento 
             syscall
             li $v0,4
-            la $a0,separador
+            la $a0,separador # Deja un espacio entre los elementos de la matriz
             syscall
         for2Fin:
-        li $v0,4
-        la $a0,newline # Nueva linea 
-        syscall
-        add $t1,$t1,4 # Cambia al siguiente elemento 
-        add $t2,$t2,4 
-        b for1 # Se repite el bucle 
+        if1: ble $t2,$s2,if1Fin
+            add $t1,1 # fila++
+            move $t2,$zero # Resetea las columnas
+            li $v0,4
+            la $a0,newline
+            syscall
+        if1Fin:
+        add $t2,1
+        b for1
     for1Fin:
+        
+
+
+
+
+
 
 
 
