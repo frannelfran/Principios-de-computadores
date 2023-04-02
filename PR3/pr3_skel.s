@@ -54,10 +54,12 @@ msg_min:    .asciiz " y el mínimo "
 msg_fin:    .asciiz "\nFin del programa.\n"
 
     # Registros utilizados
-    # $s0 == nfil
-    # $s1 == ncol
+    # $s1 == nfil
+    # $s2 == ncol
     # $t1 == filas
     # $t2 == columnas
+    # $t3 == dirección [f][c]
+    # $t4 == Teclear opción
 
 .text
 main:
@@ -84,41 +86,58 @@ main:
     syscall
 
     # Mostrar Matriz
-    la $s3,mat # Cargo la dirección base de la matriz en s3
-    for1: bgt $t1,$s1,for1Fin # for(f = 0; f < nfil; f++)
-        for2: bgt $t2,$s2,for2Fin # for(c = 0; c < ncol; c++)
-            li $t1,1
-            mul $t3,$t1,$t2 # Fila * columna
-            mul $t3,$t3,size # (Fila + columna) * 4
-            add $t3,$t3,$s3 # Busca la dirección del elemento
-            lw $t3,0($t3) # Carga la dirección del elemento en t3
+    la $s0,mat # Cargo la dirección base de la matriz en s0
+    move $s3,$s0 # Muevo la dirección de la matriz a s3
+    li $t1,0 # Inicializo las filas a 0
+    li $t2,0 # Inicializo las columnas a 0
+    bucle1:
+        move $t2,$zero # Carga un 0 en t2
+        bucle2:
+            mul $t3,$t1,$s2 # f*ncol
+            add $t3,$t3,$t2 # f*ncol+c
+            mul $t3,$t3,size # (f*ncol+c)*size
+            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
+            lw $s4,($t3) # Cargamos el valor de la matriz en s4
             li $v0,1
-            move $a0,$t3 # Muestra el elemento 
+            move $a0,$s4 # Muestra por consola el elemento
             syscall
             li $v0,4
             la $a0,separador # Deja un espacio entre los elementos de la matriz
             syscall
-        for2Fin:
-        if1: ble $t2,$s2,if1Fin
-            add $t1,1 # fila++
-            move $t2,$zero # Resetea las columnas
+            addi $t2,$t2,1 #c++
+            blt $t2,$s2,bucle2
+            addi $t1,$t1,1
             li $v0,4
-            la $a0,newline
+            la $a0,newline # Pasa a la siguiente fila de la matriz
             syscall
-        if1Fin:
-        add $t2,1
-        b for1
-    for1Fin:
-        
+            blt $t1,$s1,bucle1
+        bucle2Fin:
+    bucle1Fin:
+    # Menú
+    menú:
+        li $v0,4
+        la $a0,menu # Muestra en consola el menú
+        syscall
+    finmenú:
 
-
-
-
-
-
+    li $v0,5
+    syscall
+    move $t4,$v0 # Muevo la opción a t4
+    # Opción 1
+    li $v0,4
+    la $a0,msg_nfilas # Pregunta de cuántas filas tiene la matriz
+    syscall
+    li $v0,5
+    syscall
+    move $s1,$v0 # Mueve las filas a s1
+    li $v0,4
+    la $a0,msg_ncols # Pregunta de cuántas columnas tiene la matriz 
+    syscall
+    li $v0,5
+    syscall
+    move $s2,$v0 # Mueve las columnas a 
 
 
     li $v0,10
     syscall
 # EXIT
-

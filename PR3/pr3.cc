@@ -13,7 +13,6 @@ using namespace std;
 // no podemos hacer `mat[f][c]` sino que debemos hacer `mat[f*ncol+c]`
 
 int main(void) {
-do {
   int mat[] = {
     100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
     120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139,
@@ -51,41 +50,5 @@ do {
     }
     cout << "\n" << endl;
   }
-
-  // Opciones
-  cout << "(1) Cambiar dimensiones" << endl;
-  cout << "(2) Intercambiar dos elementos" << endl;
-  cout << "(3) Suma elementos del perímetro" << endl;
-  cout << "(4) Calcula máximo y mínimo de la diagonal principal" << endl;
-  cout << "(0) Salir" << endl;
-  // Introducir la opción 
-  int opcion;
-  cout << "Elija opción: ";
-  cin >> opcion;
-
-  if(opcion = 1) {
-    cout << "Introduzca número de filas: ";
-    cin >> nfil;
-    if(nfil <= 0) {
-      cout << "Error: dimensión incorrecta. Numero de filas incorrecto" << endl;
-    }
-    return main();
-    cout << "Introduzca el número de columnas: ";
-    cin >> ncol;
-    if(ncol <= 0) {
-      cout << "Error: dimensión incorrecta. Numero de columnas incorrecto" << endl;
-    }
-    return main();
-  }
-} while(true);
 return 0;
 }
-
-
-
-
-
-
-
-
-
