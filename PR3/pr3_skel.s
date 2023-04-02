@@ -114,11 +114,11 @@ main:
         bucle2Fin:
     bucle1Fin:
     # Menú
-    menú:
+    menu:
         li $v0,4
         la $a0,menu # Muestra en consola el menú
         syscall
-    finmenú:
+    finmenu:
 
     li $v0,5
     syscall
@@ -135,7 +135,7 @@ main:
     syscall
     li $v0,5
     syscall
-    move $s2,$v0 # Mueve las columnas a 
+    move $s2,$v0 # Mueve las columnas a s2
 
 
     li $v0,10
