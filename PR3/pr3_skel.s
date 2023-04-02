@@ -114,15 +114,15 @@ main:
         bucle2Fin:
     bucle1Fin:
     # Menú
-    menu:
+    Opciones:
         li $v0,4
         la $a0,menu # Muestra en consola el menú
         syscall
-    finmenu:
+        li $v0,5
+        syscall
+        move $t4,$v0 # Muevo la opción a t4
+    finOpciones:
 
-    li $v0,5
-    syscall
-    move $t4,$v0 # Muevo la opción a t4
     # Opción 1
     li $v0,4
     la $a0,msg_nfilas # Pregunta de cuántas filas tiene la matriz
