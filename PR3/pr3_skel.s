@@ -143,7 +143,7 @@ main:
     finOpciones:
 
     # Opción 1 (Cambiar dimensiones)
-    opcion1:
+    Opcion1:
         li $v0,4
         la $a0,msg_nfilas # Pregunta de cuántas filas quieres la matriz
         syscall
@@ -166,7 +166,7 @@ main:
     finOpcion1:
 
     # Opción 2 (Intercambiar 2 elementos)
-    opcion2:
+    Opcion2:
         #Primer elemento
         li $v0,4
         la $a0,msg_i # Pide la fila del elemeto a cambiar
@@ -242,7 +242,7 @@ main:
     b mostrar_matriz
 
     # Opción 0 (Salir del programa)
-    opcion0:
+    Opcion0:
         li $v0,4
         la $a0,msg_fin
         syscall
