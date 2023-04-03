@@ -76,6 +76,7 @@ main:
     li $v0,4
     la $a0,titulo # Muestra el título de la práctica
     syscall
+
     mostrar_matriz:
         # Mostrar por pantalla las dimensiones de la matriz
         li $v0,4
@@ -122,6 +123,7 @@ main:
             bucle2Fin:
         bucle1Fin:
     fin_mostrar_matriz:
+
     # Menú_de_opciones
     Opciones:
         li $v0,4
@@ -161,6 +163,7 @@ main:
         sw $s6,ncol # Modifica la columna de la matriz
         b mostrar_matriz # Edita la matriz y la muestra por consola
     finOpcion1:
+
     # Opción 2 (Intercambiar 2 elementos)
     opcion2:
         #Primer elemento
