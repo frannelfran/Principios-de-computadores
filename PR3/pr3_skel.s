@@ -67,7 +67,6 @@ msg_fin:    .asciiz "\nFin del programa.\n"
     # $t6 == Columna del elemento a cambiar
     # $t7 == Elemento a cambiar (fila)
     # $t8 == Elemento a cambiar (columna)
-    # $t9 == Intercambio de direcciones [f][c]
 
 .text
 main:
@@ -133,17 +132,8 @@ main:
         move $t4,$v0 # Muevo la opción a t4
         li $t5,5
         # Tipos de opciones incorrectas
-        if1: bgez $t4,if2
-            li $v0,4
-            la $a0,error_op
-            syscall
-            b Opciones
-            if2: blt $t4,$t5,if1Fin
-                li $v0,4
-                la $a0,error_op
-                syscall
-            b Opciones
-        if1Fin:
+        bltz $t4,error_opcion # Comprueba que la opción elegida no se salga del rango
+        bge $t4,$t5,error_opcion
         beq $t4,1,opcion1 # Si se inserta un 1 se realiza la opción 1
         beq $t4,0,opcion0 # Si se inserta un 0 se realiza la opción 0
         beq $t4,2,opcion2 # Si se inserta un 2 se realiza la opción 2
@@ -157,31 +147,16 @@ main:
         li $v0,5
         syscall
         move $s5,$v0 # Mueve la nueva fila a s5
-        if3: bgtz $s5,if3Fin # Comprueba que la fila no es menor o igual a 0
-            li $v0,4
-            la $a0,error_nfilas
-            syscall
-            b mostrar_matriz
-        if3Fin:
+        blez $s5,error_fila # Comprueba que la fila no es menor o igual a 0
         li $v0,4 
         la $a0,msg_ncols # Pregunta de cuántas columnas quieres la matriz 
         syscall
         li $v0,5
         syscall
         move $s6,$v0 # Mueve la nueva columna a s6
-        if4: bgtz $s6,if4Fin # Comrpueba que la columna no es menor o igual a 0
-            li $v0,4
-            la $a0,error_ncols
-            syscall
-            b mostrar_matriz
-        if4Fin:
+        blez $s6,error_columna # Comrpueba que la columna no es menor o igual a 0
         mul $s7,$s5,$s6 # fila*columna
-        if5: ble $s7,400,if5Fin # Comprueba que no se excedan los elementos
-            li $v0,4
-            la $a0,error_dime
-            syscall
-            b mostrar_matriz
-        if5Fin:
+        bgt $s7,400,error_dimensiones # Comprueba que no se excedan los elementos
         sw $s5,nfil # Modifica la fila de la matriz
         sw $s6,ncol # Modifica la columna de la matriz
         b mostrar_matriz # Edita la matriz y la muestra por consola
@@ -195,12 +170,14 @@ main:
         li $v0,5
         syscall
         move $t5,$v0 # Mueve la fila a t5
+        bltz $t5,error_fila # Comprueba que la fila no es menor que 0
         li $v0,4
         la $a0,msg_j # Pide la columna del elemento a cambiar
         syscall
         li $v0,5
         syscall
         move $t6,$v0 # Mueve la columna t6
+        bltz $t6,error_columna # Comprueba que la columna no es menor que 0
         # Segundo elemento
         li $v0,4
         la $a0,msg_r # Pide la fila del segundo elemento a cambiar
@@ -208,12 +185,14 @@ main:
         li $v0,5
         syscall
         move $t7,$v0 # Mueve la fila a t7
+        bltz $t7,error_fila # Comprueba que la fila no es menor que 0
         li $v0,4
         la $a0,msg_s # Pide la columna del segundo elemento a cambiar
         syscall
         li $v0,5
         syscall
         move $t8,$v0 # Mueve la columna a t8
+        bltz $t8,error_columna # Comprueba que la columna no es menor que 0
         # Buscar primer elemento
         mul $k0,$t5,$s2 # f*ncol
         add $k0,$k0,$t6 # f*ncol+c
@@ -231,6 +210,32 @@ main:
         sw $gp,0($k0)
         b mostrar_matriz # Muestra la matriz con los elementos intercambiados
     finOpcion2:
+
+    # Tipos de errores
+    error_opcion:
+        li $v0,4
+        la $a0,error_op
+        syscall
+        b Opciones
+        error_fila:
+            li $v0,4
+            la $a0,error_nfilas
+            syscall
+            b mostrar_matriz
+            error_columna:
+                li $v0,4
+                la $a0,error_ncols
+                syscall
+                b mostrar_matriz
+                error_dimensiones:
+                    li $v0,4
+                    la $a0,error_dime
+                    syscall
+                    b mostrar_matriz
+                fin_error_dimensiones:
+            fin_error_columna:
+        fin_error_fila:
+    fin_error_opcion:
 
     # Opción 0 (Salir del programa)
     opcion0:
