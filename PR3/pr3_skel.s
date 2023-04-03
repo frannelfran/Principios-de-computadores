@@ -114,9 +114,9 @@ main:
                 li $v0,4
                 la $a0,separador # Deja un espacio entre los elementos de la matriz
                 syscall
-                addi $t2,$t2,1 #c++
+                addi $t2,$t2,1 # c++
                 blt $t2,$s2,bucle2
-                addi $t1,$t1,1
+                addi $t1,$t1,1 # f++
                 li $v0,4
                 la $a0,newline # Pasa a la siguiente fila de la matriz
                 syscall
