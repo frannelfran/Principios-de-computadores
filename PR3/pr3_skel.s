@@ -60,60 +60,65 @@ msg_fin:    .asciiz "\nFin del programa.\n"
     # $t2 == columnas
     # $t3 == dirección [f][c]
     # $t4 == Teclear opción
+    # $s4 == Elemento de la matriz
+    # $s5 == Nueva fila
+    # $s6 == Nueva columna
 
 .text
 main:
+    # Matriz
     li $v0,4
     la $a0,titulo # Muestra el título de la práctica
     syscall
-    # Mostrar por pantalla las dimensiones de la matriz
-    li $v0,4
-    la $a0,msg_matriz
-    syscall
-    lw $s1,nfil # Cargo lo que esta almacenado en la dirección de las filas de la matriz en s0
-    li $v0,1
-    move $a0,$s1 # Muestro por consola las filas de la matriz
-    syscall
-    li $v0,4
-    la $a0,msg_x # Muestra "x"
-    syscall
-    lw $s2,ncol # Cargo lo que esta almacenado en la direccion de memoria de las columnas de la matriz en s1
-    li $v0,1
-    move $a0,$s2 # Muestro las columnas de la matriz 
-    syscall
-    li $v0,4
-    la $a0,newline
-    syscall
+    mostrar_matriz:
+        # Mostrar por pantalla las dimensiones de la matriz
+        li $v0,4
+        la $a0,msg_matriz
+        syscall
+        lw $s1,nfil # Cargo lo que esta almacenado en la dirección de las filas de la matriz en s0
+        li $v0,1
+        move $a0,$s1 # Muestro por consola las filas de la matriz
+        syscall
+        li $v0,4
+        la $a0,msg_x # Muestra "x"
+        syscall
+        lw $s2,ncol # Cargo lo que esta almacenado en la direccion de memoria de las columnas de la matriz en s1
+        li $v0,1
+        move $a0,$s2 # Muestro las columnas de la matriz 
+        syscall
+        li $v0,4
+        la $a0,newline
+        syscall
 
-    # Mostrar Matriz
-    la $s0,mat # Cargo la dirección base de la matriz en s0
-    move $s3,$s0 # Muevo la dirección de la matriz a s3
-    li $t1,0 # Inicializo las filas a 0
-    li $t2,0 # Inicializo las columnas a 0
-    bucle1:
-        move $t2,$zero # Carga un 0 en t2
-        bucle2:
-            mul $t3,$t1,$s2 # f*ncol
-            add $t3,$t3,$t2 # f*ncol+c
-            mul $t3,$t3,size # (f*ncol+c)*size
-            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
-            lw $s4,($t3) # Cargamos el valor de la matriz en s4
-            li $v0,1
-            move $a0,$s4 # Muestra por consola el elemento
-            syscall
-            li $v0,4
-            la $a0,separador # Deja un espacio entre los elementos de la matriz
-            syscall
-            addi $t2,$t2,1 #c++
-            blt $t2,$s2,bucle2
-            addi $t1,$t1,1
-            li $v0,4
-            la $a0,newline # Pasa a la siguiente fila de la matriz
-            syscall
-            blt $t1,$s1,bucle1
-        bucle2Fin:
-    bucle1Fin:
-    # Menú
+        la $s0,mat # Cargo la dirección base de la matriz en s0
+        move $s3,$s0 # Muevo la dirección de la matriz a s3
+        li $t1,0 # Inicializo las filas a 0
+        li $t2,0 # Inicializo las columnas a 0
+        bucle1:
+            move $t2,$zero # Carga un 0 en t2
+            bucle2:
+                mul $t3,$t1,$s2 # f*ncol
+                add $t3,$t3,$t2 # f*ncol+c
+                mul $t3,$t3,size # (f*ncol+c)*size
+                add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
+                lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
+                li $v0,1
+                move $a0,$s4 # Muestra por consola el elemento
+                syscall
+                li $v0,4
+                la $a0,separador # Deja un espacio entre los elementos de la matriz
+                syscall
+                addi $t2,$t2,1 #c++
+                blt $t2,$s2,bucle2
+                addi $t1,$t1,1
+                li $v0,4
+                la $a0,newline # Pasa a la siguiente fila de la matriz
+                syscall
+                blt $t1,$s1,bucle1
+            bucle2Fin:
+        bucle1Fin:
+    fin_mostrar_matriz:
+    # Menú_de_opciones
     Opciones:
         li $v0,4
         la $a0,menu # Muestra en consola el menú
@@ -121,23 +126,66 @@ main:
         li $v0,5
         syscall
         move $t4,$v0 # Muevo la opción a t4
+        li $t5,5
+        # Tipos de opciones incorrectas
+        if1: bgez $t4,if2
+            li $v0,4
+            la $a0,error_op
+            syscall
+            b Opciones
+            if2: blt $t4,$t5,if1Fin
+                li $v0,4
+                la $a0,error_op
+                syscall
+            b Opciones
+        if1Fin:
+        beq $t4,1,opcion1 # Si se inserta un 1 se realiza la opción 1
+        beq $t4,$0,opcion0 # Si se inserta un 0 se realiza la opción 0
     finOpciones:
 
-    # Opción 1
-    li $v0,4
-    la $a0,msg_nfilas # Pregunta de cuántas filas tiene la matriz
-    syscall
-    li $v0,5
-    syscall
-    move $s1,$v0 # Mueve las filas a s1
-    li $v0,4
-    la $a0,msg_ncols # Pregunta de cuántas columnas tiene la matriz 
-    syscall
-    li $v0,5
-    syscall
-    move $s2,$v0 # Mueve las columnas a s2
+    # Opción 1 (Cambiar dimensiones)
+    opcion1:
+        li $v0,4
+        la $a0,msg_nfilas # Pregunta de cuántas filas quieres la matriz
+        syscall
+        li $v0,5
+        syscall
+        move $s5,$v0 # Mueve la nueva fila a s5
+        if3: bgtz $s5,if3Fin # Comprueba que la fila no es menor o igual a 0
+            li $v0,4
+            la $a0,error_nfilas
+            syscall
+            b mostrar_matriz
+        if3Fin:
+        li $v0,4 
+        la $a0,msg_ncols # Pregunta de cuántas columnas quieres la matriz 
+        syscall
+        li $v0,5
+        syscall
+        move $s6,$v0 # Mueve la nueva columna a s6
+        if4: bgtz $s6,if4Fin # Comrpueba que la columna no es menor o igual a 0
+            li $v0,4
+            la $a0,error_ncols
+            syscall
+            b mostrar_matriz
+        if4Fin:
+        mul $s7,$s5,$s6 # fila*columna
+        if5: ble $s7,400,if5Fin # Comprueba que no se excedan los elementos
+            li $v0,4
+            la $a0,error_dime
+            syscall
+            b mostrar_matriz
+        if5Fin:
+        sw $s5,nfil # Modifica la fila de la matriz
+        sw $s6,ncol # Modifica la columna de la matriz
+        b mostrar_matriz # Edita la matriz y la muestra por consola
+    finOpcion1:
 
-
+    # Opción 0 (Salir del programa)
+    opcion0:
+    li $v0,4
+    la $a0,msg_fin
+    syscall
     li $v0,10
     syscall
 # EXIT
