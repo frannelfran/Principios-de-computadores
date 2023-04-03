@@ -126,7 +126,7 @@ main:
     fin_mostrar_matriz:
 
     # Menú_de_opciones
-    Opciones:
+    opciones:
         li $v0,4
         la $a0,menu # Muestra en consola el menú
         syscall
@@ -140,10 +140,10 @@ main:
         beq $t4,1,opcion1 # Si se inserta un 1 se realiza la opción 1
         beq $t4,0,opcion0 # Si se inserta un 0 se realiza la opción 0
         beq $t4,2,opcion2 # Si se inserta un 2 se realiza la opción 2
-    finOpciones:
+    fin_opciones:
 
     # Opción 1 (Cambiar dimensiones)
-    Opcion1:
+    opcion1:
         li $v0,4
         la $a0,msg_nfilas # Pregunta de cuántas filas quieres la matriz
         syscall
@@ -163,10 +163,10 @@ main:
         sw $s5,nfil # Modifica la fila de la matriz
         sw $s6,ncol # Modifica la columna de la matriz
         b mostrar_matriz # Edita la matriz y la muestra por consola
-    finOpcion1:
+    fin_opcion1:
 
     # Opción 2 (Intercambiar 2 elementos)
-    Opcion2:
+    opcion2:
         #Primer elemento
         li $v0,4
         la $a0,msg_i # Pide la fila del elemeto a cambiar
@@ -204,20 +204,20 @@ main:
         # Buscar primer elemento
         mul $k0,$t5,$s2 # f*ncol
         add $k0,$k0,$t6 # f*ncol+c
-        mul $k0,$k0,size 
+        mul $k0,$k0,size
         add $k0,$k0,$s3 # dirección [f][c]
         lw $t9,0($k0) # Carga en k0 el valor de la posición [f][c] del primer elemento
         # Buscar segundo elemento
         mul $k1,$t7,$s2 # f*ncol
         add $k1,$k1,$t8 # f*ncol+c
-        mul $k1,$k1,size 
+        mul $k1,$k1,size
         add $k1,$k1,$s3 # dirección [f][c] 
         lw $gp,0($k1) # Carga en gp el valor de la posición [f][c] del segundo elemento
         # Intercambiar elementos
         sw $t9,0($k1)
         sw $gp,0($k0)
         b mostrar_matriz # Muestra la matriz con los elementos intercambiados
-    finOpcion2:
+    fin_opcion2:
 
     # Tipos de errores
     error_opcion:
@@ -242,11 +242,11 @@ main:
     b mostrar_matriz
 
     # Opción 0 (Salir del programa)
-    Opcion0:
+    opcion0:
         li $v0,4
         la $a0,msg_fin
         syscall
         li $v0,10
         syscall
-    finOpcion0:
+    fin_opcion0:
 # EXIT
