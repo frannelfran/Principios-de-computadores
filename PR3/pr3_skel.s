@@ -224,7 +224,7 @@ main:
     li $v0,4
     la $a0,error_op
     syscall
-    b Opciones
+    b opciones
     error_fila:
     li $v0,4
     la $a0,error_nfilas
