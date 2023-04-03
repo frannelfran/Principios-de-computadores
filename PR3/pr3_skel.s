@@ -70,13 +70,14 @@ msg_fin:    .asciiz "\nFin del programa.\n"
 
 .text
 main:
+
     la $s0,mat # Cargo la dirección base de la matriz en s0
     move $s3,$s0 # Muevo la dirección de la matriz a s3 
     # Matriz
     li $v0,4
     la $a0,titulo # Muestra el título de la práctica
     syscall
-
+    
     mostrar_matriz:
         # Mostrar por pantalla las dimensiones de la matriz
         li $v0,4
@@ -174,6 +175,7 @@ main:
         syscall
         move $t5,$v0 # Mueve la fila a t5
         bltz $t5,error_fila # Comprueba que la fila no es menor que 0
+        bge $t5,$s5,error_fila # Comprueba que la fila no se exceda del rango
         li $v0,4
         la $a0,msg_j # Pide la columna del elemento a cambiar
         syscall
@@ -181,6 +183,7 @@ main:
         syscall
         move $t6,$v0 # Mueve la columna t6
         bltz $t6,error_columna # Comprueba que la columna no es menor que 0
+        bge $t6,$s6,error_columna # Comprueba que la columna no se exceda del rango
         # Segundo elemento
         li $v0,4
         la $a0,msg_r # Pide la fila del segundo elemento a cambiar
@@ -189,6 +192,7 @@ main:
         syscall
         move $t7,$v0 # Mueve la fila a t7
         bltz $t7,error_fila # Comprueba que la fila no es menor que 0
+        bge $t7,$s5,error_fila
         li $v0,4
         la $a0,msg_s # Pide la columna del segundo elemento a cambiar
         syscall
@@ -196,6 +200,7 @@ main:
         syscall
         move $t8,$v0 # Mueve la columna a t8
         bltz $t8,error_columna # Comprueba que la columna no es menor que 0
+        bge $t8,$s6,error_columna
         # Buscar primer elemento
         mul $k0,$t5,$s2 # f*ncol
         add $k0,$k0,$t6 # f*ncol+c
