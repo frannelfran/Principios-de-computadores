@@ -213,29 +213,25 @@ main:
 
     # Tipos de errores
     error_opcion:
-        li $v0,4
-        la $a0,error_op
-        syscall
-        b Opciones
-        error_fila:
-            li $v0,4
-            la $a0,error_nfilas
-            syscall
-            b mostrar_matriz
-            error_columna:
-                li $v0,4
-                la $a0,error_ncols
-                syscall
-                b mostrar_matriz
-                error_dimensiones:
-                    li $v0,4
-                    la $a0,error_dime
-                    syscall
-                    b mostrar_matriz
-                fin_error_dimensiones:
-            fin_error_columna:
-        fin_error_fila:
-    fin_error_opcion:
+    li $v0,4
+    la $a0,error_op
+    syscall
+    b Opciones
+    error_fila:
+    li $v0,4
+    la $a0,error_nfilas
+    syscall
+    b mostrar_matriz
+    error_columna:
+    li $v0,4
+    la $a0,error_ncols
+    syscall
+    b mostrar_matriz
+    error_dimensiones:
+    li $v0,4
+    la $a0,error_dime
+    syscall
+    b mostrar_matriz
 
     # Opción 0 (Salir del programa)
     opcion0:
