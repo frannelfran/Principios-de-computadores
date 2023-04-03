@@ -63,9 +63,16 @@ msg_fin:    .asciiz "\nFin del programa.\n"
     # $s4 == Elemento de la matriz
     # $s5 == Nueva fila
     # $s6 == Nueva columna
+    # $t5 == Fila del elemento a cambiar
+    # $t6 == Columna del elemento a cambiar
+    # $t7 == Elemento a cambiar (fila)
+    # $t8 == Elemento a cambiar (columna)
+    # $t9 == Intercambio de direcciones [f][c]
 
 .text
 main:
+    la $s0,mat # Cargo la dirección base de la matriz en s0
+    move $s3,$s0 # Muevo la dirección de la matriz a s3 
     # Matriz
     li $v0,4
     la $a0,titulo # Muestra el título de la práctica
@@ -89,9 +96,7 @@ main:
         li $v0,4
         la $a0,newline
         syscall
-
-        la $s0,mat # Cargo la dirección base de la matriz en s0
-        move $s3,$s0 # Muevo la dirección de la matriz a s3
+        # Recorrer matriz
         li $t1,0 # Inicializo las filas a 0
         li $t2,0 # Inicializo las columnas a 0
         bucle1:
@@ -140,7 +145,8 @@ main:
             b Opciones
         if1Fin:
         beq $t4,1,opcion1 # Si se inserta un 1 se realiza la opción 1
-        beq $t4,$0,opcion0 # Si se inserta un 0 se realiza la opción 0
+        beq $t4,0,opcion0 # Si se inserta un 0 se realiza la opción 0
+        beq $t4,2,opcion2 # Si se inserta un 2 se realiza la opción 2
     finOpciones:
 
     # Opción 1 (Cambiar dimensiones)
@@ -180,12 +186,58 @@ main:
         sw $s6,ncol # Modifica la columna de la matriz
         b mostrar_matriz # Edita la matriz y la muestra por consola
     finOpcion1:
+    # Opción 2 (Intercambiar 2 elementos)
+    opcion2:
+        #Primer elemento
+        li $v0,4
+        la $a0,msg_i # Pide la fila del elemeto a cambiar
+        syscall
+        li $v0,5
+        syscall
+        move $t5,$v0 # Mueve la fila a t5
+        li $v0,4
+        la $a0,msg_j # Pide la columna del elemento a cambiar
+        syscall
+        li $v0,5
+        syscall
+        move $t6,$v0 # Mueve la columna t6
+        # Segundo elemento
+        li $v0,4
+        la $a0,msg_r # Pide la fila del segundo elemento a cambiar
+        syscall
+        li $v0,5
+        syscall
+        move $t7,$v0 # Mueve la fila a t7
+        li $v0,4
+        la $a0,msg_s # Pide la columna del segundo elemento a cambiar
+        syscall
+        li $v0,5
+        syscall
+        move $t8,$v0 # Mueve la columna a t8
+        # Buscar primer elemento
+        mul $k0,$t5,$s2 # f*ncol
+        add $k0,$k0,$t6 # f*ncol+c
+        mul $k0,$k0,size 
+        add $k0,$k0,$s3 # dirección [f][c]
+        lw $t9,0($k0) # Carga en k0 el valor de la posición [f][c] del primer elemento
+        # Buscar segundo elemento
+        mul $k1,$t7,$s2 # f*ncol
+        add $k1,$k1,$t8 # f*ncol+c
+        mul $k1,$k1,size 
+        add $k1,$k1,$s3 # dirección [f][c] 
+        lw $gp,0($k1) # Carga en gp el valor de la posición [f][c] del segundo elemento
+        # Intercambiar elementos
+        sw $t9,0($k1)
+        sw $gp,0($k0)
+        b mostrar_matriz # Muestra la matriz con los elementos intercambiados
+    finOpcion2:
 
     # Opción 0 (Salir del programa)
     opcion0:
-    li $v0,4
-    la $a0,msg_fin
-    syscall
-    li $v0,10
-    syscall
+        li $v0,4
+        la $a0,msg_fin
+        syscall
+        li $v0,10
+        syscall
+    finOpcion0:
 # EXIT
