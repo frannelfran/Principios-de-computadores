@@ -206,7 +206,7 @@ main:
         add $k0,$k0,$t6 # f*ncol+c
         mul $k0,$k0,size
         add $k0,$k0,$s3 # dirección [f][c]
-        lw $t9,0($k0) # Carga en k0 el valor de la posición [f][c] del primer elemento
+        lw $t9,0($k0) # Carga en t9 el valor de la posición [f][c] del primer elemento
         # Buscar segundo elemento
         mul $k1,$t7,$s2 # f*ncol
         add $k1,$k1,$t8 # f*ncol+c
