@@ -226,69 +226,71 @@ main:
         lw $s2,ncol # Cargo en s2 las columnas de la matriz
         # Reseteo filas y columnas de la matriz
         move $t5,$zero # Suma de la primera y última fila
-        move $t8,$zero # Suma de la primera y última columna de la matriz
         move $t1,$zero # Reseteo las filas
         move $t2,$zero # Reseteo las columnas
         # Posibles casos
+        beq $s1,1,suma_primera_fila # Comprueba si la fila es 1
+        beq $s2,1,suma_primera_columna # Comprueba si la columna es 1
 
-        suma_fila:
-            # Suma de los elementos de la primera fila de la matriz
-            addi $t2,$t2,1
-            addi $s2,$s2,-1
-            suma_primera_fila:
-            mul $t3,$t1,$s2 # f*ncol
-            add $t3,$t3,$t2 # f*ncol+c
-            mul $t3,$t3,size # (f*ncol+c)*size
-            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
-            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
-            add $t5,$t5,$s4
-            addi $t2,$t2,1
-            blt $t2,$s2,suma_primera_fila
-            beq $s1,1,suma_columna_fin
-            lw $s5,ncol # Columnas originales de la matriz
-            li $t2,1 # Reseteo las columnas
-            move $t1,$s1
-            addi $t1,$t1,-1 # Me situo en la última fila
-            # Suma de los elementos de la última fila de la matriz 
-            suma_ultima_fila:
-            mul $t3,$t1,$s5 # f*ncol
-            add $t3,$t3,$t2 # f*ncol+c
-            mul $t3,$t3,size # (f*ncol+c)*size
-            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
-            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
-            add $t5,$t5,$s4 # Suma de las filas 
-            addi $t2,$t2,1 # c++
-            blt $t2,$s2,suma_ultima_fila
-        suma_fila_fin:
+        #Suma de los elementos de la primera fila
+        suma_primera_fila:
+        mul $t3,$t1,$s2 # f*ncol
+        add $t3,$t3,$t2 # f*ncol+c
+        mul $t3,$t3,size
+        add $t3,$t3,$s3 # dirección [f][c]
+        lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        add $t5,$t5,$s4
+        add $t2,$t2,1 # c++
+        blt $t2,$s2,suma_primera_fila
+        beq $s1,1,mostrar_suma # Comprueba que solo hay una fila en la matriz
 
-        suma_columna:
-            # Suma de los elementos de la primera columna de la matriz
-            move $t2,$zero # Reseteo las columnas
-            move $t1,$zero # Reseteo las filas
-            suma_primera_columna:
-            mul $t3,$t1,$s5 # f*ncol
-            add $t3,$t3,$t2 # f*ncol+c
-            mul $t3,$t3,size # (f*ncol+c)*size
-            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
-            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
-            add $t5,$t5,$s4 # Suma de las filas 
-            addi $t1,$t1,1 # f++
-            blt $t1,$s1,suma_primera_columna
-            beq $s6,2,suma_columna_fin # Comprueba que la columna es igual a 2 para terminar la suma
-            # Suma de los elementos de la última columna de la matriz
-            move $t2,$s2 # Me situo en la última columna
-            move $t1,$zero # Reseteo las filas
+        move $t2,$zero # Reseteo las columnas
+        addi $t1,$t1,1
+        # Suma de los elementos de la primera columna
+        suma_primera_columna:
+        mul $t3,$t1,$s2 # f*ncol
+        add $t3,$t3,$t2 # f*ncol+c
+        mul $t3,$t3,size
+        add $t3,$t3,$s3 # dirección [f][c]
+        lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        add $t5,$t5,$s4
+        add $t1,$t1,1 # f++
+        blt $t1,$s1,suma_primera_columna
+        beq $s2,1,mostrar_suma # Comprueba que solo hay una fila en la matriz
+        
+        # Suma de los elementos de la última fila de la matriz
+        move $t2,$zero # reseteo las columnas
+        addi $t2,$t2,1 # Empiezo en la primera columna
+        move $t1,$s1
+        addi $t1,$t1,-1
+        suma_ultima_fila:
+        mul $t3,$t1,$s2 # f*ncol
+        add $t3,$t3,$t2 # f*ncol+c
+        mul $t3,$t3,size
+        add $t3,$t3,$s3 # dirección [f][c]
+        lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        add $t5,$t5,$s4
+        add $t2,$t2,1 # c++
+        blt $t2,$s2,suma_ultima_fila
+        beq $s1,2,mostrar_suma
 
-            suma_ultima_columna:
-            mul $t3,$t1,$s5 # f*ncol
-            add $t3,$t3,$t2 # f*ncol+c
-            mul $t3,$t3,size # (f*ncol+c)*size
-            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
-            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
-            add $t5,$t5,$s4 # Suma de las filas 
-            addi $t1,$t1,1 # f++
-            blt $t1,$s1,suma_ultima_columna 
-        suma_columna_fin:
+        # Suma de los elementos de la última columna de la matriz
+        move $t2,$s2
+        addi $t2,$t2,-1 # Me ubico en la última columna
+        move $s5,$s1
+        addi $s5,$s5,-1
+        li $t1,1
+        suma_ultima_columna:
+        mul $t3,$t1,$s2 # f*ncol
+        add $t3,$t3,$t2 # f*ncol+c
+        mul $t3,$t3,size
+        add $t3,$t3,$s3 # dirección [f][c]
+        lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        add $t5,$t5,$s4
+        add $t1,$t1,1 # f++
+        blt $t1,$s5,suma_ultima_columna
+        
+        mostrar_suma:
         li $v0,4
         la $a0,msg_suma
         syscall
