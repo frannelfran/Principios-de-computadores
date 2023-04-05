@@ -244,9 +244,9 @@ main:
         blt $t2,$s2,suma_primera_fila
         beq $s1,1,mostrar_suma # Comprueba que solo hay una fila en la matriz
 
+        # Suma de los elementos de la primera columna de la matriz
         move $t2,$zero # Reseteo las columnas
         addi $t1,$t1,1
-        # Suma de los elementos de la primera columna
         suma_primera_columna:
         mul $t3,$t1,$s2 # f*ncol
         add $t3,$t3,$t2 # f*ncol+c
@@ -289,7 +289,7 @@ main:
         add $t5,$t5,$s4
         add $t1,$t1,1 # f++
         blt $t1,$s5,suma_ultima_columna
-        
+        # Resultado
         mostrar_suma:
         li $v0,4
         la $a0,msg_suma
@@ -299,6 +299,13 @@ main:
         syscall
         b mostrar_matriz
     ifn_opcion3:
+
+    # Opción 4 (Máx y mín de la diagonal)
+    opcion4:
+        
+
+
+
 
     # Tipos de errores
     error_opcion:
