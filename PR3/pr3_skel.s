@@ -140,6 +140,7 @@ main:
         beq $t4,1,opcion1 # Si se inserta un 1 se realiza la opción 1
         beq $t4,0,opcion0 # Si se inserta un 0 se realiza la opción 0
         beq $t4,2,opcion2 # Si se inserta un 2 se realiza la opción 2
+        beq $t4,3,opcion3 # Si se inserta un 3 se realiza la opción 3
     fin_opciones:
 
     # Opción 1 (Cambiar dimensiones)
@@ -218,6 +219,34 @@ main:
         sw $gp,0($k0)
         b mostrar_matriz # Muestra la matriz con los elementos intercambiados
     fin_opcion2:
+
+    # Opción 3 (Suma del perímetro)
+    opcion3:
+        lw $s1,nfil # Cargo en s1 las filas de la matriz
+        lw $s2,ncol # Cargo en s2 las columnas de la matriz
+        # Reseteo filas y columnas de la matriz
+        move $t5,$zero # Suma de la primera y última fila
+        move $t8,$zero # Suma de la primera y última columna de la matriz
+        move $t1,$zero # Reseteo las filas
+        move $t2,$zero # Reseteo las columnas
+        suma_fila:
+            # Suma de los elementos de la primera fila de la matriz
+            addi $t2,$t2,1
+            addi $s2,$s2,-1
+            suma_primera_fila:
+            mul $t3,$t1,$s2 # f*ncol
+            add $t3,$t3,$t2 # f*ncol+c
+            mul $t3,$t3,size # (f*ncol+c)*size
+            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
+            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
+            add $t5,$t5,$s4
+            addi $t2,$t2,1
+            blt $t2,$s2,suma_primera_fila
+            
+    ifn_opcion3:
+
+
+
 
     # Tipos de errores
     error_opcion:
