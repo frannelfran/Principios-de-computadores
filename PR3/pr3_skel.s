@@ -26,8 +26,8 @@ mat:   .word   100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 
        .word   480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499
        
 
-nfil:   .word   20 # nuemro de filas de la matriz
-ncol:   .word   10 # numero de columnas de la matriz
+nfil:   .word   2 # nuemro de filas de la matriz
+ncol:   .word   2 # numero de columnas de la matriz
 
 titulo:     .asciiz "\nPráctica PR3 de Principios de Computadores. Manejo de Matrices.\n"
 msg_matriz: .asciiz "\nLa matriz es "
@@ -141,6 +141,7 @@ main:
         beq $t4,0,opcion0 # Si se inserta un 0 se realiza la opción 0
         beq $t4,2,opcion2 # Si se inserta un 2 se realiza la opción 2
         beq $t4,3,opcion3 # Si se inserta un 3 se realiza la opción 3
+        beq $t4,4,opcion4 # Si se inserta un 4 se realiza la opción 4
     fin_opciones:
 
     # Opción 1 (Cambiar dimensiones)
@@ -298,14 +299,58 @@ main:
         move $a0,$t5 # Muestra por consola la suma del perímetro de la matriz
         syscall
         b mostrar_matriz
-    ifn_opcion3:
+    fin_opcion3:
 
     # Opción 4 (Máx y mín de la diagonal)
     opcion4:
-        
+        lw $s1,nfil
+        lw $s2,ncol
+        move $t1,$zero # Resetero las filas
+        move $t2,$zero # Reseteo las columnas
+        move $s4,$zero # Mínimo de la diagonal
+        move $s5,$zero # Máximo de la diagonal
 
+        # Primer elemento de la diagonal
+        mul $t3,$t1,$s2 # f*ncol
+        add $t3,$t3,$t2 # f*ncol+c
+        mul $t3,$t3,size
+        add $t3,$t3,$s3 # dirección [f][c]
+        lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+    
+        # Elemento que sigue
+        addi $t1,$t1,1
+        addi $t2,$t2,1
+        diagonal:
+        mul $t3,$t1,$s2 # f*ncol
+        add $t3,$t3,$t2 # f*ncol+c
+        mul $t3,$t3,size
+        add $t3,$t3,$s3 # dirección [f][c]
+        lw $s5,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        add $t1,$t1,1 # f++
+        add $t2,$t2,1 # c++
+        save_min: bgt $s5,$s4,ifFin
+            move $t4,$s5 # Guardo en t4 el mínimo
+        ifFin:
+        save_max: blt $s4,$s5,if2Fin
+            move $t5,$s4 # Guardo en t5 el máximo
+        if2Fin:
+        blt $t2,$s2,diagonal
 
-
+        # Mostrar resultado
+        li $v0,4
+        la $a0,msg_max
+        syscall
+        li $v0,1
+        move $a0,$t5 # Muestra el máximo de la diagonal principal
+        syscall
+        li $v0,4
+        la $a0,msg_min
+        syscall
+        li $v0,1
+        move $a0,$t4 # Muestra el mínimo de la diagonal principal
+        syscall
+        b mostrar_matriz
+    fin_opcion4:
 
     # Tipos de errores
     error_opcion:
