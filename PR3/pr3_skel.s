@@ -229,6 +229,8 @@ main:
         move $t8,$zero # Suma de la primera y última columna de la matriz
         move $t1,$zero # Reseteo las filas
         move $t2,$zero # Reseteo las columnas
+        # Posibles casos
+
         suma_fila:
             # Suma de los elementos de la primera fila de la matriz
             addi $t2,$t2,1
@@ -242,11 +244,59 @@ main:
             add $t5,$t5,$s4
             addi $t2,$t2,1
             blt $t2,$s2,suma_primera_fila
-            
+            beq $s1,1,suma_columna_fin
+            lw $s5,ncol # Columnas originales de la matriz
+            li $t2,1 # Reseteo las columnas
+            move $t1,$s1
+            addi $t1,$t1,-1 # Me situo en la última fila
+            # Suma de los elementos de la última fila de la matriz 
+            suma_ultima_fila:
+            mul $t3,$t1,$s5 # f*ncol
+            add $t3,$t3,$t2 # f*ncol+c
+            mul $t3,$t3,size # (f*ncol+c)*size
+            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
+            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
+            add $t5,$t5,$s4 # Suma de las filas 
+            addi $t2,$t2,1 # c++
+            blt $t2,$s2,suma_ultima_fila
+        suma_fila_fin:
+
+        suma_columna:
+            # Suma de los elementos de la primera columna de la matriz
+            move $t2,$zero # Reseteo las columnas
+            move $t1,$zero # Reseteo las filas
+            suma_primera_columna:
+            mul $t3,$t1,$s5 # f*ncol
+            add $t3,$t3,$t2 # f*ncol+c
+            mul $t3,$t3,size # (f*ncol+c)*size
+            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
+            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
+            add $t5,$t5,$s4 # Suma de las filas 
+            addi $t1,$t1,1 # f++
+            blt $t1,$s1,suma_primera_columna
+            beq $s6,2,suma_columna_fin # Comprueba que la columna es igual a 2 para terminar la suma
+            # Suma de los elementos de la última columna de la matriz
+            move $t2,$s2 # Me situo en la última columna
+            move $t1,$zero # Reseteo las filas
+
+            suma_ultima_columna:
+            mul $t3,$t1,$s5 # f*ncol
+            add $t3,$t3,$t2 # f*ncol+c
+            mul $t3,$t3,size # (f*ncol+c)*size
+            add $t3,$t3,$s3 # Carga la dirección donde se encuentra el elemento de la matriz
+            lw $s4,($t3) # Cargamos el valor del elemento de la matriz en s4
+            add $t5,$t5,$s4 # Suma de las filas 
+            addi $t1,$t1,1 # f++
+            blt $t1,$s1,suma_ultima_columna 
+        suma_columna_fin:
+        li $v0,4
+        la $a0,msg_suma
+        syscall
+        li $v0,1
+        move $a0,$t5 # Muestra por consola la suma del perímetro de la matriz
+        syscall
+        b mostrar_matriz
     ifn_opcion3:
-
-
-
 
     # Tipos de errores
     error_opcion:
