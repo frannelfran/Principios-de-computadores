@@ -26,8 +26,8 @@ mat:   .word   100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 
        .word   480, 481, 482, 483, 484, 485, 486, 487, 488, 489, 490, 491, 492, 493, 494, 495, 496, 497, 498, 499
        
 
-nfil:   .word   2 # nuemro de filas de la matriz
-ncol:   .word   2 # numero de columnas de la matriz
+nfil:   .word   20 # nuemro de filas de la matriz
+ncol:   .word   10 # numero de columnas de la matriz
 
 titulo:     .asciiz "\nPráctica PR3 de Principios de Computadores. Manejo de Matrices.\n"
 msg_matriz: .asciiz "\nLa matriz es "
@@ -316,7 +316,6 @@ main:
         mul $t3,$t3,size
         add $t3,$t3,$s3 # dirección [f][c]
         lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
-    
         # Elemento que sigue
         addi $t1,$t1,1
         addi $t2,$t2,1
@@ -325,17 +324,16 @@ main:
         add $t3,$t3,$t2 # f*ncol+c
         mul $t3,$t3,size
         add $t3,$t3,$s3 # dirección [f][c]
-        lw $s5,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        lw $s5,0($t3) # Carga en s5 el valor de la posición [f][c] del segundo elemento
         add $t1,$t1,1 # f++
         add $t2,$t2,1 # c++
-        save_min: bgt $s5,$s4,ifFin
-            move $t4,$s5 # Guardo en t4 el mínimo
-        ifFin:
-        save_max: blt $s4,$s5,if2Fin
-            move $t5,$s4 # Guardo en t5 el máximo
-        if2Fin:
+        if1: blt $s5,$s4,if2
+            move $t5,$s5
+            if2: bgt $s4,$s5,if1Fin
+                move $t4,$s4
+            if2Fin:
+        if1Fin:
         blt $t2,$s2,diagonal
-
         # Mostrar resultado
         li $v0,4
         la $a0,msg_max
