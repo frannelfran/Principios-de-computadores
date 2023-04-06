@@ -327,13 +327,8 @@ main:
         lw $s5,0($t3) # Carga en s5 el valor de la posición [f][c] del segundo elemento
         add $t1,$t1,1 # f++
         add $t2,$t2,1 # c++
-        if1: blt $s5,$s4,if2
-            move $t5,$s5
-            if2: bgt $s4,$s5,if1Fin
-                move $t4,$s4
-            if2Fin:
-        if1Fin:
         blt $t2,$s2,diagonal
+        
         # Mostrar resultado
         li $v0,4
         la $a0,msg_max
