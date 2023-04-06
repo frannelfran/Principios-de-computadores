@@ -63,8 +63,8 @@ msg_fin:    .asciiz "\nFin del programa.\n"
     # $s4 == Elemento de la matriz
     # $s5 == Nueva fila
     # $s6 == Nueva columna
-    # $t5 == Fila del elemento a cambiar
-    # $t6 == Columna del elemento a cambiar
+    # $t5 == Fila del elemento a cambiar == máximo de la diagonal
+    # $t6 == Columna del elemento a cambiar == mínimo de la diagonal
     # $t7 == Elemento a cambiar (fila)
     # $t8 == Elemento a cambiar (columna)
 
@@ -307,39 +307,31 @@ main:
         lw $s2,ncol
         move $t1,$zero # Resetero las filas
         move $t2,$zero # Reseteo las columnas
-        move $s4,$zero # Mínimo de la diagonal
-        move $s5,$zero # Máximo de la diagonal
-
         # Primer elemento de la diagonal
-        mul $t3,$t1,$s2 # f*ncol
-        add $t3,$t3,$t2 # f*ncol+c
-        mul $t3,$t3,size
-        add $t3,$t3,$s3 # dirección [f][c]
-        lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
-        move $t4,$s4
+        lw $t0,mat
+        move $t5,$t0 # Guardo el primer elemento para el máximo
+        move $t4,$t0 # Guardo el primer elemento para el mínimo
+        beq $s2,400,result # Si la columna insertada es 400 muestra el mínimo y máximo que equivalen al 1er elemento de la matriz
         # Elemento que sigue
-        addi $t1,$t1,1 # f++
-        addi $t2,$t2,1 # c++
         diagonal:
         mul $t3,$t1,$s2 # f*ncol
         add $t3,$t3,$t2 # f*ncol+c
         mul $t3,$t3,size
         add $t3,$t3,$s3 # dirección [f][c]
-        lw $s5,0($t3) # Carga en s5 el valor de la posición [f][c] del segundo elemento
+        lw $t3,0($t3) # Carga en t3 el valor de la posición [f][c] del segundo elemento
         addi $t1,$t1,1 # f++
         addi $t2,$t2,1 # c++
-        bgt $s5,$s4,save_max
-        blt $s5,$s4,save_min
+        bgt $t3,$t5,save_max # Compara el elemento de la diaagonal con el valor actual del máximo
+        blt $t3,$t4,save_min # Compara el elemento de la diagonal con el valor actual del mínimo
         blt $t2,$s2,diagonal
         beq $t2,$s2,result
         save_max:
-        move $t5,$s5
+        move $t5,$t3 # Guarda el valor del máximo en t5
         blt $t2,$s2,diagonal
         beq $t2,$s2,result
         save_min:
-        move $t4,$s5
+        move $t4,$t3 # Guarda el valor del mínimo en t4
         blt $t2,$s2,diagonal
-        beq $t2,$s2,result
 
         # Mostrar resultado
         result:
