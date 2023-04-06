@@ -1,4 +1,6 @@
 # Esqueleto PR3
+# Autor: Franco Alla
+# Correo: alu0101571669@ull.edu.es
 
 maximoElementos=400 # numero de enteros maximo reservado para la matriz 1600 bytes
 size=4 # bytes que ocupa un entero
