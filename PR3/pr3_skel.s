@@ -316,20 +316,31 @@ main:
         mul $t3,$t3,size
         add $t3,$t3,$s3 # dirección [f][c]
         lw $s4,0($t3) # Carga en s4 el valor de la posición [f][c] del primer elemento
+        move $t4,$s4
         # Elemento que sigue
-        addi $t1,$t1,1
-        addi $t2,$t2,1
         diagonal:
         mul $t3,$t1,$s2 # f*ncol
         add $t3,$t3,$t2 # f*ncol+c
         mul $t3,$t3,size
         add $t3,$t3,$s3 # dirección [f][c]
+        addi $t1,$t1,1 # f++
+        addi $t2,$t2,1 # c++
         lw $s5,0($t3) # Carga en s5 el valor de la posición [f][c] del segundo elemento
-        add $t1,$t1,1 # f++
-        add $t2,$t2,1 # c++
+        bgt $s5,$s4,save_max
+        blt $s5,$s4,save_min
         blt $t2,$s2,diagonal
-        
+        beq $t2,$s2,result
+        save_max:
+        move $t5,$s5
+        blt $t2,$s2,diagonal
+        beq $t2,$s2,result
+        save_min:
+        move $t4,$s5
+        blt $t2,$s2,diagonal
+        beq $t2,$s2,result
+
         # Mostrar resultado
+        result:
         li $v0,4
         la $a0,msg_max
         syscall
