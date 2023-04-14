@@ -140,11 +140,11 @@ main:
         # Tipos de opciones incorrectas
         bltz $t4,error_opcion # Comprueba que la opción elegida no se salga del rango
         bge $t4,$t5,error_opcion
-        beq $t4,1,opcion1 # Si se inserta un 1 se realiza la opción 1
-        beq $t4,0,opcion0 # Si se inserta un 0 se realiza la opción 0
-        beq $t4,2,opcion2 # Si se inserta un 2 se realiza la opción 2
-        beq $t4,3,opcion3 # Si se inserta un 3 se realiza la opción 3
-        beq $t4,4,opcion4 # Si se inserta un 4 se realiza la opción 4
+        beq $t4,1,opcion1 # Si se inserta un 1 se cambian las dimensiones de la matriz
+        beq $t4,0,opcion0 # Si se inserta un 0 se sale del programa
+        beq $t4,2,opcion2 # Si se inserta un 2 se intercambian 2 elementos de la matriz
+        beq $t4,3,opcion3 # Si se inserta un 3 suma el perímetro de la matriz
+        beq $t4,4,opcion4 # Si se inserta un 4 se busca el máximo y mínimo de la diagonal de la matriz
     fin_opciones:
 
     # Opción 1 (Cambiar dimensiones)
@@ -162,7 +162,7 @@ main:
         li $v0,5
         syscall
         move $s6,$v0 # Mueve la nueva columna a s6
-        blez $s6,error_columna # Comrpueba que la columna no es menor o igual a 0
+        blez $s6,error_columna # Comprueba que la columna no es menor o igual a 0
         mul $s7,$s5,$s6 # fila*columna
         bgt $s7,400,error_dimensiones # Comprueba que no se excedan los elementos
         sw $s5,nfil # Modifica la fila de la matriz
