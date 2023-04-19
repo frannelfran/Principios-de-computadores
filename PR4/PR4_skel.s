@@ -31,7 +31,6 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
     # Registros utilizados
     # $f1 == Elementos del primer vector
-    # $t4 == maxdim == 40
     # $t1 == n1
 
 main:
@@ -50,25 +49,20 @@ main:
     la $a0,newline
     syscall
     li.s $f1,10.0 # Primer elemento del vector
-    li $t4,40 # Maximo número de elementos
-    lw $t1,n1 # Cargo el número de lementos de v1 en t1 
-    mostrar_vector:
-        li.s $f3,1.0 # Sumador
+    lw $t1,n1 # Cargo el número de lementos de v1 en t1
+    mostrar_v1:
         li $v0,2
         mov.s $f12,$f1
         syscall
         li $v0,4
         la $a0,space
         syscall
-        add.s $f1,$f1,$f3
+        li.s $f3,1.0 # Sumador
+        add.s $f1,$f1,$f3 # Siguiente elemetno del vector
         addi $t1,$t1,1 # Incremento el número de elementos
-        bne $t1,$t4,mostrar_vector
+        bne $t1,40,mostrar_vector
         sw $t1,n1 # Guardo el nuevo número de elemetnos del vector
-    mostrar_vector_fin:
-    
-
-
-
+    mostrar_v1_fin:
 
 
 
