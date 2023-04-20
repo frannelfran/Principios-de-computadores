@@ -26,5 +26,95 @@ error_d_dim:    .asciiz "\nError: Los vectores tienen distinta dimension.\n"
 msg_prodesc:    .asciiz "\nEl producto escalar de los vectores es: "
 msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
+    # Registros utilizados
+    # $s1 == dirección base de v1
+    # $s2 == dirección base de s2
+    # $t1 == elementos de v1
+    # $t2 == elementos de v2
+    # $s3 == dimensión de v1
+    # $s4 == dimensión de v2
+    # $3 == direccionamiento de cada número
+    # $t4 == elementos de cada vector
 
     .text
+main:
+    li $v0,4
+    la $a0,title # Muestra el enunciado de la práctica
+    syscall
+    # Mostrar vectores
+    li $s3,40 # Número de elementos del vector v1
+    sw $s3,n1
+    li $s4,40 # Número de elementos ddel vector v2
+    sw $s4,n2
+    mostrar_vectores:
+        li $v0,4
+        la $a0,cabvec # Muestra la dimensión del vector
+        syscall
+        li $v0,1
+        move $a0,$s3
+        syscall
+        li $v0,4
+        la $a0,newline # Nueva línea
+        syscall
+        li $t4,10 # Primer elemento de v1
+        lw $s3,n1 # Cargo el número de elementos de v1
+        vector_v1:
+            sw $t4,v1($3) # Guardar cada elemento
+            mtc1 $t4,$f1
+            cvt.s.w $f1,$f1 # Convierto a flotante el elemento
+            li $v0,2
+            mov.s $f12,$f1 # Muestro pòr consola el elemento
+            syscall
+            li $v0,4
+            la $a0,space
+            syscall
+            addi $t4,$t4,1 # Siguiente elemento
+            addi $t1,$t1,1 # Incremento el número de elementos
+            addi $3,$3,4 # Siguiente dirección de memoria
+            blt $t1,$s3,vector_v1 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
+        vector_v1_fin:
+        li $v0,4
+        la $a0,newline # Nueva línea
+        syscall
+        li $v0,4
+        la $a0,cabvec # Muestra la dimensión del vector
+        syscall
+        li $v0,1
+        move $a0,$s3
+        syscall
+        li $v0,4
+        la $a0,newline # Nueva línea
+        syscall
+        # Resetear valores
+        move $3,$zero
+        li $t4,40 # Primer elemento de v2
+        lw $s4,n2 # Cargo el número de elementos del vector
+        vector_v2:
+            sw $t4,v2($3) # Guardar cada elemento
+            mtc1 $t4,$f1
+            cvt.s.w $f1,$f1 # Convierto a flotante el elemento
+            li $v0,2
+            mov.s $f12,$f1 # Muestro pòr consola el elemento
+            syscall
+            li $v0,4
+            la $a0,space
+            syscall
+            sub $t4,$t4,1 # Siguiente elemento
+            addi $t2,$t2,1 # Incremento el número de elementos
+            addi $3,$3,4 # Siguiente dirección de memoria
+            blt $t2,$s4,vector_v2 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
+        vector_v2_fin:
+    mostrar_vectores_fin:
+    li $v0,4
+    la $a0,newline # Nueva línea
+    syscall
+    mostrar_menu:
+        li $v0,4
+        la $a0,menu
+        syscall
+    mostrar_menu_fin:
+
+
+    li $v0,10
+    syscall
+# EXIT
