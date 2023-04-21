@@ -51,6 +51,7 @@ main:
         li $v0,4
         la $a0,cabvec # Muestra la dimensión del vector
         syscall
+        lw $s3,n1 # Cargo el número de elementos de v1 en s3
         li $v0,1
         move $a0,$s3
         syscall
@@ -84,8 +85,9 @@ main:
         li $v0,4
         la $a0,cabvec # Muestra la dimensión del vector
         syscall
+        lw $s4,n2 # Cargo el número de elementos de v2 en s4
         li $v0,1
-        move $a0,$s3
+        move $a0,$s4
         syscall
         li $v0,4
         la $a0,newline # Nueva línea
