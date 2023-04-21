@@ -29,8 +29,8 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     # Registros utilizados
     # $s1 == dirección base de v1
     # $s2 == dirección base de s2
-    # $t1 == elementos de v1
-    # $t2 == elementos de v2
+    # $t1 == contador de elementos de v1 y v2
+    # $t2 == opciones del menú
     # $s3 == dimensión de v1
     # $s4 == dimensión de v2
     # $3 == direccionamiento de cada número
@@ -47,6 +47,7 @@ main:
     li $s4,40 # Número de elementos ddel vector v2
     sw $s4,n2
     mostrar_vectores:
+
         li $v0,4
         la $a0,cabvec # Muestra la dimensión del vector
         syscall
@@ -58,7 +59,9 @@ main:
         syscall
         li $t4,10 # Primer elemento de v1
         lw $s3,n1 # Cargo el número de elementos de v1
+
         vector_v1:
+
             sw $t4,v1($3) # Guardar cada elemento
             mtc1 $t4,$f1
             cvt.s.w $f1,$f1 # Convierto a flotante el elemento
@@ -72,7 +75,9 @@ main:
             addi $t1,$t1,1 # Incremento el número de elementos
             addi $3,$3,4 # Siguiente dirección de memoria
             blt $t1,$s3,vector_v1 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
+
         vector_v1_fin:
+
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
@@ -87,9 +92,12 @@ main:
         syscall
         # Resetear valores
         move $3,$zero
+        move $t1,$zero # Reseteo el contador
         li $t4,40 # Primer elemento de v2
         lw $s4,n2 # Cargo el número de elementos del vector
+
         vector_v2:
+
             sw $t4,v2($3) # Guardar cada elemento
             mtc1 $t4,$f1
             cvt.s.w $f1,$f1 # Convierto a flotante el elemento
@@ -100,19 +108,28 @@ main:
             la $a0,space
             syscall
             sub $t4,$t4,1 # Siguiente elemento
-            addi $t2,$t2,1 # Incremento el número de elementos
+            addi $t1,$t1,1 # Incremento el número de elementos
             addi $3,$3,4 # Siguiente dirección de memoria
-            blt $t2,$s4,vector_v2 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
+            blt $t1,$s4,vector_v2 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
+
         vector_v2_fin:
     mostrar_vectores_fin:
+
     li $v0,4
     la $a0,newline # Nueva línea
     syscall
+
     mostrar_menu:
+
         li $v0,4
         la $a0,menu
         syscall
+        li $v0,5
+        syscall
+        move $t2,$v0 # Mueve la opción a t2
     mostrar_menu_fin:
+    errores:
+        error_opcion:
 
 
     li $v0,10
