@@ -251,22 +251,22 @@ main:
 
     # Posibles errores
     errores:
-    error_opcion:
-    li $v0,4
-    la $a0,error_op
-    syscall
-    j mostrar_vectores
-    error_dimension:
-    li $v0,4
-    la $a0,error_dim
-    syscall
-    j mostrar_vectores
-    error_indice:
-    li $v0,4
-    la $a0,error_ind
-    syscall
-    j mostrar_vectores
-
+        error_opcion:
+        li $v0,4
+        la $a0,error_op
+        syscall
+        j mostrar_vectores
+        error_dimension:
+        li $v0,4
+        la $a0,error_dim
+        syscall
+        j mostrar_vectores
+        error_indice:
+        li $v0,4
+        la $a0,error_ind
+        syscall
+        j mostrar_vectores
+    errores_fin:
 
     # Opción 0 (Salir del programa)
     opcion0:
