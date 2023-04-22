@@ -38,102 +38,173 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
     .text
 main:
+    # Poner en memoria los vectores
+    li $t4,10
+    cargar_v1:
+        sw $t4,v1($3) # Guardar los elementos
+        addi $t4,$t4,1 # Siguiente elemento
+        addi $t1,$t1,1 # n++
+        addi $3,$3,4 # Siguiente dirección de memoria
+        blt $t1,40,cargar_v1
+        sw $t1,n1 # Guardamos el número de elementos de v1
+    cargar_v1_fin:
+    # Reseteo de valores
+    li $t4,40
+    move $3,$zero
+    move $t1,$zero
+    cargar_v2:
+        sw $t4,v2($3) # Guardar elementos
+        sub $t4,$t4,1 # Siguiente elemento
+        addi $t1,$t1,1 # n++
+        addi $3,$3,4 # Siguiente direcció de memoria
+        blt $t1,40,cargar_v2
+        sw $t1,n2 # Guardamos el número de elementos de v2
+    cargar_v2_fin:
     li $v0,4
-    la $a0,title # Muestra el enunciado de la práctica
+    la $a0,title # Muestra el título del programa
     syscall
     # Mostrar vectores
-    li $s3,40 # Número de elementos del vector v1
-    sw $s3,n1
-    li $s4,40 # Número de elementos ddel vector v2
-    sw $s4,n2
+    move $t1,$zero # Reseteo el contador de elementos
     mostrar_vectores:
-
         li $v0,4
-        la $a0,cabvec # Muestra la dimensión del vector
+        la $a0,cabvec 
         syscall
-        lw $s3,n1 # Cargo el número de elementos de v1 en s3
+        lw $s3,n1 # Carga el número de elementos de v1 en s3
         li $v0,1
-        move $a0,$s3
+        move $a0,$s3 # Lo muestra por consola
         syscall
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        li $t4,10 # Primer elemento de v1
-        lw $s3,n1 # Cargo el número de elementos de v1
-
+        move $t1,$zero
         vector_v1:
-
-            sw $t4,v1($3) # Guardar cada elemento
+            la $s1,v1 # Carga la dirección base de v1
+            mul $t4,$t1,size
+            addu $t4,$t4,$s1 # Busco el elemento
+            lw $t4,($t4) # Cargo el elemento en t4
+            # Conversión de entero a flotante
             mtc1 $t4,$f1
-            cvt.s.w $f1,$f1 # Convierto a flotante el elemento
+            cvt.s.w $f1,$f1
             li $v0,2
-            mov.s $f12,$f1 # Muestro pòr consola el elemento
+            mov.s $f12,$f1 # Mostrar el elemento
             syscall
             li $v0,4
-            la $a0,space
+            la $a0,space # Deja un espacio entre los elementos
             syscall
-            addi $t4,$t4,1 # Siguiente elemento
-            addi $t1,$t1,1 # Incremento el número de elementos
-            addi $3,$3,4 # Siguiente dirección de memoria
-            blt $t1,$s3,vector_v1 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
-
+            addi $t1,$t1,1 # n++
+            blt $t1,$s3,vector_v1
         vector_v1_fin:
-
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
         li $v0,4
-        la $a0,cabvec # Muestra la dimensión del vector
+        la $a0,cabvec # Muestra el número de elementos de v2
         syscall
-        lw $s4,n2 # Cargo el número de elementos de v2 en s4
+        lw $s4,n2 # Carga el número de elementos de v2 en s4
         li $v0,1
-        move $a0,$s4
+        move $a0,$s4 # Lo muestra por consola
         syscall
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        # Resetear valores
-        move $3,$zero
-        move $t1,$zero # Reseteo el contador
-        li $t4,40 # Primer elemento de v2
-        lw $s4,n2 # Cargo el número de elementos del vector
-
+        move $t1,$zero # Reseteo el contador de elementos
         vector_v2:
-
-            sw $t4,v2($3) # Guardar cada elemento
+            la $s2,v2 # Carga la dirección base de v2
+            mul $t4,$t1,size
+            addu $t4,$t4,$s2 # Busco el elemento
+            lw $t4,($t4) # Cargo el elemento en t4
+            # Conversión de entero a flotante
             mtc1 $t4,$f1
-            cvt.s.w $f1,$f1 # Convierto a flotante el elemento
+            cvt.s.w $f1,$f1
             li $v0,2
-            mov.s $f12,$f1 # Muestro pòr consola el elemento
+            mov.s $f12,$f1 # Mostrar el elemento
             syscall
             li $v0,4
-            la $a0,space
+            la $a0,space # Deja un espacio entre los elementos
             syscall
-            sub $t4,$t4,1 # Siguiente elemento
-            addi $t1,$t1,1 # Incremento el número de elementos
-            addi $3,$3,4 # Siguiente dirección de memoria
-            blt $t1,$s4,vector_v2 # Repetir hasta que el número de elemetos coincida con la dimensión máxima
-
+            addi $t1,$t1,1 # n++
+            blt $t1,$s4,vector_v2
         vector_v2_fin:
     mostrar_vectores_fin:
-
+    
     li $v0,4
     la $a0,newline # Nueva línea
     syscall
 
-    mostrar_menu:
-
+    opciones_menu:
         li $v0,4
-        la $a0,menu
+        la $a0,menu # Muestra el menú por consola
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0 # Mueve la opción al registro t2
+        bgt $t2,4,error_opcion # Si la opción es mayor que 4 mostrar mensaje de error
+        bltz $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        beqz $t2,opcion0 # Si la opción es 0 salir del programa
+        beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
+
+    opciones_menu_fin:
+
+    # Opción 1 (Cambiar dimensión de un vector)
+    opcion1:
+        li $v0,4
+        la $a0,elige_vec # Pregunta con que vector quiere realizar la operación
         syscall
         li $v0,5
         syscall
         move $t2,$v0 # Mueve la opción a t2
-    mostrar_menu_fin:
+        bltz $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        bgt $t2,2,error_opcion # Si la opción es mayor que 2 mostrar mensaje de error
+        beq $t2,1,opcion1_v1 # Si la opcion es 1 realizar para v1
+        beq $t2,2,opcion1_v2 # si la opción es 2 realizar para v2
+        # Opcion1 para v1
+        opcion1_v1:
+        li $v0,4
+        la $a0,newdim # Introducir nueva dimensión del vector
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0
+        bgt $t2,40,error_dimension # Si la dimensión intorducida es mayor que 40 mostrar mensaje de error
+        blez $t2,error_dimension # Si la dimensión es menor o igual que 0 mostrar mensaje de error
+        sw $t2,n1 # Guardar la nueva dimensión de v1
+        b mostrar_vectores
+        # Opción1 para v2
+        opcion1_v2:
+        li $v0,4
+        la $a0,newdim # Introducir nueva dimensión del vector
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0
+        bgt $t2,40,error_dimension # Si la dimensión intorducida es mayor que 40 mostrar mensaje de error
+        blez $t2,error_dimension # Si la dimensión es menor o igual que 0 mostrar mensaje de error
+        sw $t2,n2 # Guardar la nueva dimensión de v1
+        b mostrar_vectores
+    opcion1_fin:
+
+
+
+    # Posibles errores
     errores:
-        error_opcion:
-
-
-    li $v0,10
+    error_opcion:
+    li $v0,4
+    la $a0,error_op
     syscall
+    b mostrar_vectores
+    error_dimension:
+    li $v0,4
+    la $a0,error_dim
+    syscall
+    b mostrar_vectores
+
+
+    # Opción 0 (Salir del programa)
+    opcion0:
+        li $v0,4
+        la $a0,msg_fin # Salir del programa
+        syscall
+        li $v0,10
+        syscall
+    opcion0_fin:
 # EXIT
