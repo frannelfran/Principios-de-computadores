@@ -168,7 +168,7 @@ main:
         bgt $t2,40,error_dimension # Si la dimensión intorducida es mayor que 40 mostrar mensaje de error
         blez $t2,error_dimension # Si la dimensión es menor o igual que 0 mostrar mensaje de error
         sw $t2,n1 # Guardar la nueva dimensión de v1
-        b mostrar_vectores
+        j mostrar_vectores
         # Opción1 para v2
         opcion1_v2:
         li $v0,4
@@ -180,7 +180,7 @@ main:
         bgt $t2,40,error_dimension # Si la dimensión intorducida es mayor que 40 mostrar mensaje de error
         blez $t2,error_dimension # Si la dimensión es menor o igual que 0 mostrar mensaje de error
         sw $t2,n2 # Guardar la nueva dimensión de v1
-        b mostrar_vectores
+        j mostrar_vectores
     opcion1_fin:
 
 
@@ -191,12 +191,12 @@ main:
     li $v0,4
     la $a0,error_op
     syscall
-    b mostrar_vectores
+    j mostrar_vectores
     error_dimension:
     li $v0,4
     la $a0,error_dim
     syscall
-    b mostrar_vectores
+    j mostrar_vectores
 
 
     # Opción 0 (Salir del programa)
