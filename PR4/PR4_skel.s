@@ -34,28 +34,30 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     # $s3 == dimensión de v1
     # $s4 == dimensión de v2
     # $3 == direccionamiento de cada número
-    # $t4 == elementos de cada vector
+    # $f4 == elementos de cada vector
     # $t3 == índice del elemento a cambiar
+    # $f5 == 1.0
 
     .text
 main:
+    li.s $f5,1.0
     # Poner en memoria los vectores
-    li $t4,10
+    li.s $f4,10.0
     cargar_v1:
-        sw $t4,v1($3) # Guardar los elementos
-        addi $t4,$t4,1 # Siguiente elemento
+        s.s $f4,v1($3) # Guardar los elementos
+        add.s $f4,$f4,$f5 # Siguiente elemento
         addi $t1,$t1,1 # n++
         addi $3,$3,4 # Siguiente dirección de memoria
         blt $t1,40,cargar_v1
         sw $t1,n1 # Guardamos el número de elementos de v1
     cargar_v1_fin:
     # Reseteo de valores
-    li $t4,40
+    li.s $f4,40.0
     move $3,$zero
     move $t1,$zero
     cargar_v2:
-        sw $t4,v2($3) # Guardar elementos
-        sub $t4,$t4,1 # Siguiente elemento
+        s.s $f4,v2($3) # Guardar elementos
+        sub.s $f4,$f4,$f5 # Siguiente elemento
         addi $t1,$t1,1 # n++
         addi $3,$3,4 # Siguiente direcció de memoria
         blt $t1,40,cargar_v2
@@ -83,12 +85,9 @@ main:
             la $s1,v1 # Carga la dirección base de v1
             mul $t4,$t1,size
             addu $t4,$t4,$s1 # Busco el elemento
-            lw $t4,($t4) # Cargo el elemento en t4
-            # Conversión de entero a flotante
-            mtc1 $t4,$f1
-            cvt.s.w $f1,$f1
+            l.s $f4,($t4) # Cargo el elemento en f4
             li $v0,2
-            mov.s $f12,$f1 # Mostrar el elemento
+            mov.s $f12,$f4 # Mostrar el elemento
             syscall
             li $v0,4
             la $a0,space # Deja un espacio entre los elementos
@@ -116,12 +115,9 @@ main:
             la $s2,v2 # Carga la dirección base de v2
             mul $t4,$t1,size
             addu $t4,$t4,$s2 # Busco el elemento
-            lw $t4,($t4) # Cargo el elemento en t4
-            # Conversión de entero a flotante
-            mtc1 $t4,$f1
-            cvt.s.w $f1,$f1
+            l.s $f4,($t4) # Cargo el elemento en f4
             li $v0,2
-            mov.s $f12,$f1 # Mostrar el elemento
+            mov.s $f12,$f4 # Mostrar el elemento
             syscall
             li $v0,4
             la $a0,space # Deja un espacio entre los elementos
@@ -215,14 +211,14 @@ main:
         li $v0,4
         la $a0,newval # Introducir el nuevo valor para ese índice
         syscall
-        li $v0,5
+        li $v0,6
         syscall
-        move $t5,$v0 # Mueve el nuevo valor a f2
+        mov.s $f4,$f0 # Mueve el nuevo valor a f4
         # Cambiar el elemento
         la $s1,v1 # Cargo la dirección base de v1 en s1
         mul $t4,$t3,size
         addu $t4,$t4,$s1 # Busco el valor
-        sw $t5,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
+        s.s $f4,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
         j mostrar_vectores
 
         # Opción 2 para v2
@@ -238,14 +234,14 @@ main:
         li $v0,4
         la $a0,newval # Introducir el nuevo valor para ese índice
         syscall
-        li $v0,5
+        li $v0,6
         syscall
-        move $t5,$v0 # Mueve el nuevo valor a f2
+        mov.s $f4,$f0 # Mueve el nuevo valor a f4
         # Cambiar el elemento
         la $s4,v2 # Cargo la dirección base de v2 en s2
         mul $t4,$t3,size
         addu $t4,$t4,$s4 # Busco el valor
-        sw $t5,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
+        s.s $f4,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
         j mostrar_vectores
     opcion2_fin:
 
