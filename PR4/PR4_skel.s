@@ -191,53 +191,63 @@ main:
 
     # Opción2 (Cambio elemento)
     opcion2:
-    li $v0,4
-    la $a0,elige_vec # Pregunta con que vector quieres realizar la operación
-    syscall
-    li $v0,5
-    syscall
-    move $t2,$v0 # Almacena la opción en t2
-    blez $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
-    bgt $t2,2,error_opcion # Si la opción es mayor que 2 mostrar mensaje de error
-    beq $t2,1,opcion2_v1 # Si la opcion es 1 realizar para v1
-    beq $t2,2,opcion2_v2 # si la opción es 2 realizar para v2
+        li $v0,4
+        la $a0,elige_vec # Pregunta con que vector quieres realizar la operación
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0 # Almacena la opción en t2
+        blez $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        bgt $t2,2,error_opcion # Si la opción es mayor que 2 mostrar mensaje de error
+        beq $t2,1,opcion2_v1 # Si la opcion es 1 realizar para v1
+        beq $t2,2,opcion2_v2 # si la opción es 2 realizar para v2
 
-    # Opción 2 para v1
-    opcion2_v1:
-    li $v0,4
-    la $a0,elige_elto # Pregunta por el índice a cambiar
-    syscall
-    li $v0,5
-    syscall
-    move $t3,$v0 # Mueve el índice a t3
-    blez $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
-    bgt $t3,$s3,error_indice # Si el índice a cambiar es mayor que los índice de v1 mostrar mensaje de error
-    li $v0,4
-    la $a0,newval # Introducir el nuevo valor para ese índice
-    syscall
-    li $v0,6
-    syscall
-    mov.s $f2,$f0 # Mueve el nuevo valor a f2
-    
-    # Cambiar el elemento
-    la $s1,v1 # Cargo la dirección base de v1 en s1
-    mul $t4,$t3,size
-    addu $t4,$t4,$s1 # Busco el valor
-    s.s $f2,($t4) # Cargo el valor almacenado en la dirección de memoria
+        # Opción 2 para v1
+        opcion2_v1:
+        li $v0,4
+        la $a0,elige_elto # Pregunta por el índice a cambiar
+        syscall
+        li $v0,5
+        syscall
+        move $t3,$v0 # Mueve el índice a t3
+        bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
+        bge $t3,$s3,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
+        li $v0,4
+        la $a0,newval # Introducir el nuevo valor para ese índice
+        syscall
+        li $v0,6
+        syscall
+        move $t5,$v0 # Mueve el nuevo valor a f2
+        # Cambiar el elemento
+        la $s1,v1 # Cargo la dirección base de v1 en s1
+        mul $t4,$t3,size
+        addu $t4,$t4,$s1 # Busco el valor
+        sw $t5,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
+        j mostrar_vectores
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # Opción 2 para v2
+        opcion2_v2:
+        li $v0,4
+        la $a0,elige_elto # Pregunta por el índice a cambiar
+        syscall
+        li $v0,5
+        syscall
+        move $t3,$v0 # Mueve el índice a t3
+        bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
+        bge $t3,$s4,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
+        li $v0,4
+        la $a0,newval # Introducir el nuevo valor para ese índice
+        syscall
+        li $v0,5
+        syscall
+        move $t5,$v0 # Mueve el nuevo valor a f2
+        # Cambiar el elemento
+        la $s4,v2 # Cargo la dirección base de v2 en s2
+        mul $t4,$t3,size
+        addu $t4,$t4,$s4 # Busco el valor
+        sw $t5,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
+        j mostrar_vectores
+    opcion2_fin:
 
     # Posibles errores
     errores:
