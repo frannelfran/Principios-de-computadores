@@ -77,6 +77,7 @@ main:
         la $a0,newline # Nueva línea
         syscall
         move $t1,$zero
+        
         vector_v1:
             la $s1,v1 # Carga la dirección base de v1
             mul $t4,$t1,size
@@ -94,6 +95,7 @@ main:
             addi $t1,$t1,1 # n++
             blt $t1,$s3,vector_v1
         vector_v1_fin:
+
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
@@ -108,6 +110,7 @@ main:
         la $a0,newline # Nueva línea
         syscall
         move $t1,$zero # Reseteo el contador de elementos
+
         vector_v2:
             la $s2,v2 # Carga la dirección base de v2
             mul $t4,$t1,size
@@ -153,10 +156,11 @@ main:
         li $v0,5
         syscall
         move $t2,$v0 # Mueve la opción a t2
-        bltz $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        blez $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
         bgt $t2,2,error_opcion # Si la opción es mayor que 2 mostrar mensaje de error
         beq $t2,1,opcion1_v1 # Si la opcion es 1 realizar para v1
         beq $t2,2,opcion1_v2 # si la opción es 2 realizar para v2
+
         # Opcion1 para v1
         opcion1_v1:
         li $v0,4
@@ -169,6 +173,7 @@ main:
         blez $t2,error_dimension # Si la dimensión es menor o igual que 0 mostrar mensaje de error
         sw $t2,n1 # Guardar la nueva dimensión de v1
         j mostrar_vectores
+
         # Opción1 para v2
         opcion1_v2:
         li $v0,4
@@ -182,6 +187,11 @@ main:
         sw $t2,n2 # Guardar la nueva dimensión de v1
         j mostrar_vectores
     opcion1_fin:
+
+    # Opción2 (Cambio elemento)
+
+
+
 
 
 
