@@ -215,7 +215,7 @@ main:
         li $v0,4
         la $a0,newval # Introducir el nuevo valor para ese índice
         syscall
-        li $v0,6
+        li $v0,5
         syscall
         move $t5,$v0 # Mueve el nuevo valor a f2
         # Cambiar el elemento
