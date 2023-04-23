@@ -54,6 +54,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         jr $ra
     print_vec_fin:
 
+    # Cambiar elemento
     change_elto:
         # Paso de parámetros
         move $s1,$a0 # Carga la dirección base de v1 o v2
