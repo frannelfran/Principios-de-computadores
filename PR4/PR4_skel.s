@@ -80,9 +80,8 @@ main:
         la $a0,newline # Nueva línea
         syscall
         move $t1,$zero
-
+        la $s1,v1 # Carga la dirección base de v1
         vector_v1:
-            la $s1,v1 # Carga la dirección base de v1
             mul $t4,$t1,size
             addu $t4,$t4,$s1 # Busco el elemento
             l.s $f4,($t4) # Cargo el elemento en f4
@@ -110,9 +109,8 @@ main:
         la $a0,newline # Nueva línea
         syscall
         move $t1,$zero # Reseteo el contador de elementos
-
+        la $s2,v2 # Carga la dirección base de v2
         vector_v2:
-            la $s2,v2 # Carga la dirección base de v2
             mul $t4,$t1,size
             addu $t4,$t4,$s2 # Busco el elemento
             l.s $f4,($t4) # Cargo el elemento en f4
@@ -143,6 +141,7 @@ main:
         beqz $t2,opcion0 # Si la opción es 0 salir del programa
         beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
         beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento del vector
+        beq $t2,3,opcion3 # Si la opción es 3 invertir el vector
     opciones_menu_fin:
 
     # Opción 1 (Cambiar dimensión de un vector)
@@ -244,6 +243,73 @@ main:
         s.s $f4,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
         j mostrar_vectores
     opcion2_fin:
+
+    # Opción 3 (Invierte vector)
+    opcion3:
+        li $v0,4
+        la $a0,elige_vec # Pregunta con que vector quiere realizar el cambio
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0 # Almacena la opción en t2
+        blez $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        bgt $t2,2,error_opcion # Si la opción es mayor que 2 mostrar mensaje de error
+        beq $t2,1,opcion3_v1 # Si la opcion es 1 realizar para v1
+        beq $t2,2,opcion3_v2 # si la opción es 2 realizar para v2
+
+        # Opción 3 para v1
+        opcion3_v1:
+        la $s1,v1 # Cargo la dirección base de v1
+        lw $s3,n1 # Cargo el número de elementos de v1
+        move $t1,$s3
+        sub $t1,$t1,1 # n--
+        move $t6,$zero # n++
+        move $t5,$zero # Almacena la dirección de memoria de los primeros índices iniciales
+
+        # Invertir v1
+        invertir_v1:
+        # Busco el último elemento
+        mul $t4,$t1,size # Cargo el último número
+        addu $t4,$t4,$s1 # Lo busco
+        l.s $f4,($t4) # Cargo el número en f4
+        # Busco el primer elemento
+        mul $t5,$t6,size
+        addu $t5,$t5,$s1
+        l.s $f5,($t5)
+        # Intercambiar los elementos
+        s.s $f5,($t4)
+        s.s $f4,($t5)
+        addi $t6,$t6,1
+        sub $t1,$t1,1
+        div $t7,$s3,2
+        blt $t6,$t7,invertir_v1
+        j mostrar_vectores
+
+        # Opción 3 para v2
+        opcion3_v2:
+        la $s2,v2 # Cargo la dirección base de v2
+        lw $s4,n2 # Cargo el número de elementos de v2
+        move $t1,$s4
+        sub $t1,$t1,1 # n--
+        move $t6,$zero # n++
+        div $t7,$s4,2
+        invertir_v2:
+        # Busco el último elemento
+        mul $t4,$t1,size # Cargo el último número
+        addu $t4,$t4,$s2 # Lo busco
+        l.s $f4,($t4) # Cargo el número en f4
+        # Busco el primer elemento
+        mul $t5,$t6,size
+        addu $t5,$t5,$s2
+        l.s $f5,($t5)
+        # Intercambiar los elementos
+        s.s $f5,($t4)
+        s.s $f4,($t5) # Guardo el último elemento el las priemras direcciones de memoria
+        addi $t6,$t6,1 # n++
+        sub $t1,$t1,1 # n--
+        blt $t6,$t7,invertir_v2
+        j mostrar_vectores
+    opcion3_fin:
 
     # Posibles errores
     errores:
