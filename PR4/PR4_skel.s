@@ -142,6 +142,7 @@ main:
         beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
         beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento del vector
         beq $t2,3,opcion3 # Si la opción es 3 invertir el vector
+        beq $t2,4,opcion4 # Si la opción es 4 hacer el producto escalar de v1 y v2
     opciones_menu_fin:
 
     # Opción 1 (Cambiar dimensión de un vector)
@@ -311,6 +312,38 @@ main:
         j mostrar_vectores
     opcion3_fin:
 
+    opcion4:
+        lw $s3,n1 # Cargo el número de elementos de v1
+        lw $s4,n2 # Cargo el nñumero de elementos de v2
+        bne $s3,$s4,error_dimension_distinta # Si los vectores tienen distinta dimensión mostrar mensaje de error
+        # Dirección base de los vectores
+        la $s1,v1
+        la $s2,v2
+        # Reseteo de valores
+        move $t1,$zero
+        li.s $f6,0.0
+        producto:
+        # Busco los elmentos de v1
+        mul $t4,$t1,size
+        addu $t4,$t4,$s1
+        l.s $f4,($t4)
+        # Busclo los elementos de v2
+        mul $t5,$t1,size
+        addu $t5,$t5,$s2
+        l.s $f5,($t5)
+        mul.s $f3,$f4,$f5 # Multiplica el primer elemento de v1 con el primero de v2
+        add.s $f6,$f6,$f3 # Va sumando los productos
+        add $t1,$t1,1 # n++
+        blt $t1,$s3,producto
+        li $v0,4
+        la $a0,msg_prodesc # Muestra el producto escalar de los vectores
+        syscall
+        li $v0,2
+        mov.s $f12,$f6
+        syscall
+        j mostrar_vectores
+    opcion4_fin:
+
     # Posibles errores
     errores:
         error_opcion:
@@ -326,6 +359,11 @@ main:
         error_indice:
         li $v0,4
         la $a0,error_ind
+        syscall
+        j mostrar_vectores
+        error_dimension_distinta:
+        li $v0,4
+        la $a0,error_d_dim
         syscall
         j mostrar_vectores
     errores_fin:
