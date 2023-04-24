@@ -27,6 +27,8 @@ msg_prodesc:    .asciiz "\nEl producto escalar de los vectores es: "
 msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
 # Registros utilizados
+    # EN EL MAIN
+
     # $s1 == dirección base de v1
     # $s2 == dirección base de s2
     # $t1 == contador de elementos de v1 y v2
@@ -36,21 +38,54 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     # $3 == direccionamiento de cada número
     # $f4 == elementos de cada vector
     # $t3 == índice del elemento a cambiar
+
+    # EN LA PILA
+    # $s1 == dirección base de v1 y v2
+    # $s2 == número de elementos de v1 y v2
+    # $s3 == contador de elementos == n
+    # $s4 == Dirección donde se encuentra el elementos del vector
     # $f5 == 1.0
 
     .text
 
     # Mostrar vectores
     print_vec:
+        add $sp,$sp,-24
+        sw $ra, 20($sp)
+        sw $s1, 16($sp)
+        sw $s2, 12($sp)
+        sw $s3, 8($sp)
+        sw $s4, 4($sp)
+        sw $s5, 0($sp)
+
         move $s1,$a0 # Carga la dirección base de v1 o v2
-        move $s3,$a1 # Carga el número de elementos de v1 o v2 en s3
-        for1: bgt $t1,$s3,for1_fin
-            mul $t4,$t1,size
-            addu $t4,$t4,$s1 # Busco el elemento
-            l.s $f4,($t4) # Cargo el elemento en f4
-            addi $t1,$t1,1 # n++
-        for1_fin:
-        mov.s $f0,$f4
+        move $s2,$a1 # Carga el número de elementos de v1 o v2 en s3
+        move $s5,$a2 # Mueve el asciiz "space" a s5
+        li $s3,0 # Inicializo el contador n
+
+        vector:
+            mul $s4,$s3,size
+            addu $s4,$s4,$s1 # Busco el elemento
+            l.s $f4,($s4) # Cargo el elemento en f4
+            addi $s3,$s3,1 # n++
+
+            li $v0,2
+            mov.s $f12,$f4
+            syscall
+
+            li $v0,4
+            move $a0,$s5
+            syscall
+            blt $s3,$s2,vector
+        vector_fin:
+
+        lw $s5, 0($sp)
+        lw $s4, 4($sp)
+        lw $s3, 8($sp)
+        lw $s2, 12($sp)
+        lw $s1, 16($sp)
+        lw $ra, 20($sp)
+        add $sp,$sp,24
         jr $ra
     print_vec_fin:
 
@@ -69,6 +104,8 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     change_elto_fin:
 
 main:
+    # Poner los vectores en memoria
+    ##########################################################
     li.s $f5,1.0
     # Poner en memoria los vectores
     li.s $f4,10.0
@@ -96,7 +133,10 @@ main:
     li $v0,4
     la $a0,title # Muestra el título del programa
     syscall
+    ##########################################################
 
+    # MOSTRAR VECTORES
+    ##########################################################
     mostrar_vectores:
         li $v0,4
         la $a0,cabvec
@@ -109,21 +149,13 @@ main:
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        move $t1,$zero # Reseteo n
 
         # Muestra v1 por consola
         vector_v1: 
-            bge $t1,$s3,vector_v1_fin
             la $a0,v1 # Carga la dirección base de v1 en a0
             lw $a1,n1 # Carga en a1 el número de elementos de v1
+            la $a2,space # Cargo el asciiz "space" en a2
             jal print_vec
-            li $v0,2
-            mov.s $f12,$f0 # Muestra el elemento
-            syscall
-            li $v0,4
-            la $a0,space # Deja un espacio entre los elementos
-            syscall
-            b vector_v1
         vector_v1_fin:
 
         li $v0,4
@@ -139,25 +171,14 @@ main:
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        move $t1,$zero # Reseteo n
-
+        
         # Muestra v2 por consola
-        vector_v2:
-            bge $t1,$s4,vector_v2_fin 
-            la $a0,v2 # Carga la dirección base de v2 en a0
-            lw $a1,n2 # Carga en a1 el número de elementos de v2
-            jal print_vec # Llama a la función print_vec
-
-            li $v0,2
-            mov.s $f12,$f0 # Imprime el elemento
-            syscall
-
-            li $v0,4
-            la $a0,space # Deja un espacio entre los elementos
-            syscall
-            b vector_v2
+        vector_v2: 
+            la $a0,v2 # Carga la dirección base de v1 en a0
+            lw $a1,n2 # Carga en a1 el número de elementos de v1
+            la $a2,space # Cargo el asciiz "space" en a2
+            jal print_vec
         vector_v2_fin:
-    mostrar_vectores_fin:
 
         li $v0,4
         la $a0,newline # Nueva línea
