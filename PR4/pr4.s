@@ -97,17 +97,17 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         sw $s1, 12($sp)
         sw $s3, 8($sp)
         sw $s4, 4($sp)
-        s.s $f0, 0($sp)
+        s.s $f20, 0($sp)
 
         move $s1,$a0 # Carga la dirección base de v1 o v2 en s1
         move $s3,$a2 # Muevo el índice a s3
-        mov.s $f0,$f12
+        mov.s $f20,$f12
 
         mul $s4,$s3,size
         addu $s4,$s4,$s1 # Busca la dirección del índice marcado
-        s.s $f0,($s4) # Cambia el elemento
+        s.s $f20,($s4) # Cambia el elemento
 
-        l.s $f0, 0($sp)
+        l.s $f20, 0($sp)
         lw $s4, 4($sp)
         lw $s3, 8($sp)
         lw $s1, 12($sp)
@@ -343,11 +343,6 @@ main:
         error_indice:
         li $v0,4
         la $a0,error_ind
-        syscall
-        j mostrar_vectores
-        error_dimension_distinta:
-        li $v0,4
-        la $a0,error_d_dim
         syscall
         j mostrar_vectores
     errores_fin:
