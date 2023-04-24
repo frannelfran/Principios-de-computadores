@@ -58,13 +58,13 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         sw $s4, 4($sp)
         sw $s5, 0($sp)
 
-        move $s1,$a0 # Carga la dirección base de v1 o v2
-        move $s2,$a1 # Carga el número de elementos de v1 o v2 en s3
+        move $s1,$a0 # Carga la dirección base de v1 o v2 en s1
+        move $s2,$a1 # Carga el número de elementos de v1 o v2 en s2
         move $s5,$a2 # Mueve el asciiz "space" a s5
         li $s3,0 # Inicializo el contador n
 
         vector:
-            mul $s4,$s3,size
+            mul $s4,$s3,4
             addu $s4,$s4,$s1 # Busco el elemento
             l.s $f4,($s4) # Cargo el elemento en f4
             addi $s3,$s3,1 # n++
@@ -91,29 +91,43 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
     # Cambiar elemento
     change_elto:
-        # Paso de parámetros
-        move $s1,$a0 # Carga la dirección base de v1 o v2
-        move $s3,$a1 # Carga el número de elementos de v1 o v2 en s3
-        move $t3,$a2 # Muevo el índice a t3
-        mov.s $f4,$f12 # Muevo el nuevo valor a f4
 
-        mul $t4,$t3,size
-        addu $t4,$t4,$s1 # Busco el valor
-        s.s $f4,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
+        add $sp,$sp,-20
+        sw $ra, 16($sp)
+        sw $s1, 12($sp)
+        sw $s3, 8($sp)
+        sw $s4, 4($sp)
+        s.s $f0, 0($sp)
+
+        move $s1,$a0 # Carga la dirección base de v1 o v2 en s1
+        move $s3,$a2 # Muevo el índice a s3
+        mov.s $f0,$f12
+
+        mul $s4,$s3,4
+        addu $s4,$s4,$s1 # Busca la dirección del índice marcado
+        s.s $f0,($s4) # Cambia el elemento
+
+        l.s $f0, 0($sp)
+        lw $s4, 4($sp)
+        lw $s3, 8($sp)
+        lw $s1, 12($sp)
+        lw $ra, 16($sp)
+        add $sp,$sp,20
         jr $ra
     change_elto_fin:
 
 main:
-    # Poner los vectores en memoria
+    ##########################################################
+    # PONER LOS VECTORES EN MEMORIA
     ##########################################################
     li.s $f5,1.0
     # Poner en memoria los vectores
     li.s $f4,10.0
     cargar_v1:
-        s.s $f4,v1($3) # Guardar los elementos
+        s.s $f4,v1($v1) # Guardar los elementos
         add.s $f4,$f4,$f5 # Siguiente elemento
         addi $t1,$t1,1 # n++
-        addi $3,$3,4 # Siguiente dirección de memoria
+        addi $v1,$v1,4 # Siguiente dirección de memoria
         blt $t1,40,cargar_v1
         sw $t1,n1 # Guardamos el número de elementos de v1
     cargar_v1_fin:
@@ -122,10 +136,10 @@ main:
     move $3,$zero
     move $t1,$zero
     cargar_v2:
-        s.s $f4,v2($3) # Guardar elementos
+        s.s $f4,v2($v1) # Guardar elementos
         sub.s $f4,$f4,$f5 # Siguiente elemento
         addi $t1,$t1,1 # n++
-        addi $3,$3,4 # Siguiente direcció de memoria
+        addi $v1,$v1,4 # Siguiente direcció de memoria
         blt $t1,40,cargar_v2
         sw $t1,n2 # Guardamos el número de elementos de v2
     cargar_v2_fin:
@@ -134,10 +148,10 @@ main:
     la $a0,title # Muestra el título del programa
     syscall
     ##########################################################
-
     # MOSTRAR VECTORES
     ##########################################################
     mostrar_vectores:
+
         li $v0,4
         la $a0,cabvec
         syscall
@@ -171,7 +185,7 @@ main:
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        
+
         # Muestra v2 por consola
         vector_v2: 
             la $a0,v2 # Carga la dirección base de v1 en a0
@@ -183,22 +197,26 @@ main:
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-
-        opciones_menu:
-            li $v0,4
-            la $a0,menu # Muestra el menú por consola
-            syscall
-            li $v0,5
-            syscall
-            move $t2,$v0 # Mueve la opción al registro t2
-            bgt $t2,4,error_opcion # Si la opción es mayor que 4 mostrar mensaje de error
-            bltz $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
-            beqz $t2,opcion0 # Si la opción es 0 salir del programa
-            beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
-            beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento
-        opciones_menu_fin:
-
-        # Opción 1 (Cambiar dimensión de un vector)
+    mostrar_vectores_fin:
+    ##########################################################
+    # MOSTRAR MENÚ
+    ########################################################## 
+    opciones_menu:
+        li $v0,4
+        la $a0,menu # Muestra el menú por consola
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0 # Mueve la opción al registro t2
+        bgt $t2,4,error_opcion # Si la opción es mayor que 4 mostrar mensaje de error
+        bltz $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        beqz $t2,opcion0 # Si la opción es 0 salir del programa
+        beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
+        beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento
+    opciones_menu_fin:
+    ##########################################################
+    # OPCIÓN1 (CAMBIAR LA DIMENSIÓN DE UN VECTOR)
+    ##########################################################
     opcion1:
         li $v0,4
         la $a0,elige_vec # Pregunta con que vector quiere realizar la operación
@@ -237,7 +255,9 @@ main:
         sw $t2,n2 # Guardar la nueva dimensión de v2
         j mostrar_vectores
     opcion1_fin:
-
+    ##########################################################
+    # OPCIÓN2 (CAMBIAR UN ELEMENTO)
+    ##########################################################
     opcion2:
         li $v0,4
         la $a0,elige_vec # Pregunta con que vector quieres realizar la operación
@@ -258,18 +278,16 @@ main:
             syscall
             move $t3,$v0 # Mueve el índice a t3
             bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
-            lw $s3,n1 # Cargar los elementos de v1
             bge $t3,$s3,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
             li $v0,4
             la $a0,newval # Introducir el nuevo valor para ese índice
             syscall
-            li $v0,6
+            li $v0,6 # Almavcena en f0 el elemento a cambiar
             syscall
+            mov.s $f12,$f0
             # Cambiar el elemento
             la $a0,v1 # Cargo la dirección base de v1 en a0
-            lw $a1,n1 # Cargo el número de elementos de v1 en a1
             move $a2,$t3 # Muevo el índice a a2
-            mov.s $f12,$f0 # Mueve el nuevo valor a f12
             jal change_elto
             j mostrar_vectores
         opcion2_v1_fin:
@@ -282,18 +300,16 @@ main:
             syscall
             move $t3,$v0 # Mueve el índice a t3
             bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
-            lw $s4,n2 # Cargar los elementos de v2
             bge $t3,$s4,error_indice # Si el índice a cambiar es mayor o igual que los índice de v2 mostrar mensaje de error
             li $v0,4
             la $a0,newval # Introducir el nuevo valor para ese índice
             syscall
             li $v0,6
             syscall
+            mov.s $f12,$f0
             # Cambiar el elemento
             la $a0,v2 # Cargo la dirección base de v2 en a0
-            lw $a1,n2 # Cargo el número de elementos de v2 en a1
             move $a2,$t3 # Muevo el índice a a2
-            mov.s $f12,$f0 # Mueve el nuevo valor a f12
             jal change_elto
             j mostrar_vectores
         opcion1_v2_fin:
