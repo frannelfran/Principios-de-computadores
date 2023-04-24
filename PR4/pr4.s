@@ -64,7 +64,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         li $s3,0 # Inicializo el contador n
 
         vector:
-            mul $s4,$s3,4
+            mul $s4,$s3,size
             addu $s4,$s4,$s1 # Busco el elemento
             l.s $f4,($s4) # Cargo el elemento en f4
             addi $s3,$s3,1 # n++
@@ -103,7 +103,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         move $s3,$a2 # Muevo el índice a s3
         mov.s $f0,$f12
 
-        mul $s4,$s3,4
+        mul $s4,$s3,size
         addu $s4,$s4,$s1 # Busca la dirección del índice marcado
         s.s $f0,($s4) # Cambia el elemento
 
