@@ -157,6 +157,14 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         jr $ra
     swap_fin:
 
+    # Suma del producto escalar
+    mult_add:
+        mul.s $f20,$f4,$f5 # Multiplico los elementos de ambos vectores
+        add.s $f21,$f21,$f20 # Los sumo
+        mov.s $f0,$f21
+        jr $ra
+    mult_add_fin:
+
     # Producto escalar
     prod_esc:
 
@@ -169,7 +177,6 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         sw $s4, 8($sp)
         s.s $f20, 4($sp)
         s.s $f21, 0($sp)
-
 
         move $s0,$a0 # Dirección de memoria de v1
         move $s1,$a1 # Dirección de memoria de v2
@@ -184,12 +191,8 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
             mul $s4,$s3,size
             addu $s4,$s4,$s1
             l.s $f5,($s4)
-            mult_add:
-                mul.s $f20,$f4,$f5 # Multiplico los elementos de ambos vectores
-                add.s $f21,$f21,$f20 # Los sumo
-                mov.s $f0,$f21
-            mult_add_fin:
             addi $s3,$s3,1 #n++
+            jal mult_add
             b for
         for_fin:
         mov.s $f0,$f21 # retorno el producot escalar
