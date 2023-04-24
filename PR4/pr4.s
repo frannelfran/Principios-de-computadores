@@ -429,7 +429,6 @@ main:
         j mostrar_vectores
     opcion4_fin:
 
-
     # Posibles errores
     errores:
         error_opcion:
