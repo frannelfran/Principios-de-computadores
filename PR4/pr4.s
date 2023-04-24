@@ -421,7 +421,6 @@ main:
         la $a0,v1
         la $a1,v2
         lw $a2,n1
-        lw $a3,n2
         jal prod_esc
         li $v0,4
         la $a0,msg_prodesc
