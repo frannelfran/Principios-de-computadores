@@ -116,6 +116,112 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         jr $ra
     change_elto_fin:
 
+    # Invertir vector
+    swap:
+        add $sp,$sp,-32
+        sw $ra, 28($sp)
+        sw $s0, 24($sp)
+        sw $s1, 20($sp)
+        sw $s2, 16($sp)
+        sw $s3, 12($sp)
+        s.s $f20, 8($sp)
+        sw $s5, 4($sp)
+        s.s $f21, 0($sp)
+
+        move $s0,$a0 # Carga la dirección base de v1 o v2 en s0
+        move $s1,$a1 # Carga el primer índice en s1
+        move $s2,$a2 # Carga el segundo índice en s2
+
+        # Cargo el primer elemento
+        mul $s3,$s1,size
+        addu $s3,$s3,$s0
+        l.s $f20,($s3) # Cargo el elemento en s4
+
+        mul $s5,$s2,size
+        addu $s5,$s5,$s0
+        l.s $f21,($s5) # Cargo el segundo elemento en f21
+
+        # Intercambio elementos
+        s.s $f20,($s5)
+        s.s $f21,($s3)
+
+        l.s $f21, 0($sp)
+        lw $s5, 4($sp)
+        l.s $f20, 8($sp)
+        lw $s3, 12($sp)
+        lw $s2, 16($sp)
+        lw $s1, 20($sp)
+        lw $s0, 24($sp)
+        lw $ra, 28($sp)
+        add $sp,$sp,32
+        jr $ra
+    swap_fin:
+
+    # Producto escalar
+    prod_esc:
+
+        add $sp,$sp,-32
+        sw $ra, 28($sp)
+        sw $s0, 24($sp)
+        sw $s1, 20($sp)
+        sw $s2, 16($sp)
+        sw $s3, 12($sp)
+        sw $s4, 8($sp)
+        s.s $f20, 4($sp)
+        s.s $f21, 0($sp)
+
+
+        move $s0,$a0 # Dirección de memoria de v1
+        move $s1,$a1 # Dirección de memoria de v2
+        move $s2,$a2 # Número de elementos de v1 y v2
+        li $s3,0 # Índice == n
+        # Buscar elementos de v1
+        for: bge $s3,$s2,for_fin
+            mul $s4,$s3,size
+            addu $s4,$s4,$s0
+            l.s $f4,($s4)
+            # Buscar elementos de v2
+            mul $s4,$s3,size
+            addu $s4,$s4,$s1
+            l.s $f5,($s4)
+            addi $s3,$s3,1 #n++
+            b for
+        for_fin:
+        mov.s $f0,$f21 # retorno el producot escalar
+        l.s $f21, 0($sp)
+        l.s $f20, 4($sp)
+        lw $s4, 8($sp)
+        lw $s3, 12($sp)
+        lw $s2, 16($sp)
+        lw $s1, 20($sp)
+        lw $s0, 24($sp)
+        lw $ra, 28($sp) 
+        add $sp,$sp,32
+        jr $ra
+    prod_esc_fin:
+
+    mult_add:
+        mul.s $f20,$f4,$f5 # Multiplico los elementos de ambos vectores
+        add.s $f21,$f21,$f20 # Los sumo
+    mult_add_fin:
+
+        
+
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 main:
     ##########################################################
     # PONER LOS VECTORES EN MEMORIA
@@ -213,9 +319,11 @@ main:
         beqz $t2,opcion0 # Si la opción es 0 salir del programa
         beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
         beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento
+        # beq $t2,3,opcion3 # Si la opción es 3 invertir el vector
+        beq $t2,4,opcion4 # Si la opción es 4 realizar el producto escalar de los vectores
     opciones_menu_fin:
     ##########################################################
-    # OPCIÓN1 (CAMBIAR LA DIMENSIÓN DE UN VECTOR)
+    # OPCIÓN 1 (CAMBIAR LA DIMENSIÓN DE UN VECTOR)
     ##########################################################
     opcion1:
         li $v0,4
@@ -256,7 +364,7 @@ main:
         j mostrar_vectores
     opcion1_fin:
     ##########################################################
-    # OPCIÓN2 (CAMBIAR UN ELEMENTO)
+    # OPCIÓN 2 (CAMBIAR UN ELEMENTO)
     ##########################################################
     opcion2:
         li $v0,4
@@ -315,6 +423,29 @@ main:
             jal change_elto
             j mostrar_vectores
         opcion2_v2_fin:
+    opcion2_fin:
+
+    ##########################################################
+    # OPCIÓN 4 (PRODUCTO ESCALAR)
+    ##########################################################
+    opcion4:
+        lw $s3,n1 # Cargo el número de elementos de v1
+        lw $s4,n2 # Cargo el nñumero de elementos de v2
+        bne $s3,$s4,error_dimension_distinta # Si los vectores tienen distinta dimensión mostrar mensaje de error
+        la $a0,v1
+        la $a1,v2
+        lw $a2,n1
+        lw $a3,n2
+        jal prod_esc
+        li $v0,4
+        la $a0,msg_prodesc
+        syscall
+        li $v0,2
+        mov.s $f12,$f0 # Muestro la suma
+        syscall
+        j mostrar_vectores
+    opcion4_fin:
+
 
     # Posibles errores
     errores:
@@ -331,6 +462,11 @@ main:
         error_indice:
         li $v0,4
         la $a0,error_ind
+        syscall
+        j mostrar_vectores
+        error_dimension_distinta:
+        li $v0,4
+        la $a0,error_d_dim
         syscall
         j mostrar_vectores
     errores_fin:
