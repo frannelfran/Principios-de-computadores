@@ -94,23 +94,23 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
         add $sp,$sp,-20
         sw $ra, 16($sp)
-        sw $s1, 12($sp)
-        sw $s3, 8($sp)
-        sw $s4, 4($sp)
+        sw $s0, 12($sp)
+        sw $s1, 8($sp)
+        sw $s2, 4($sp)
         s.s $f20, 0($sp)
 
-        move $s1,$a0 # Carga la dirección base de v1 o v2 en s1
-        move $s3,$a2 # Muevo el índice a s3
+        move $s0,$a0 # Carga la dirección base de v1 o v2 en s0
+        move $s1,$a1 # Muevo el índice a s1
         mov.s $f20,$f12
 
-        mul $s4,$s3,size
-        addu $s4,$s4,$s1 # Busca la dirección del índice marcado
-        s.s $f20,($s4) # Cambia el elemento
+        mul $s2,$s1,size
+        addu $s2,$s2,$s0 # Busca la dirección del índice marcado
+        s.s $f20,($s2) # Cambia el elemento
 
         l.s $f20, 0($sp)
-        lw $s4, 4($sp)
-        lw $s3, 8($sp)
-        lw $s1, 12($sp)
+        lw $s2, 4($sp)
+        lw $s1, 8($sp)
+        lw $s0, 12($sp)
         lw $ra, 16($sp)
         add $sp,$sp,20
         jr $ra
@@ -279,15 +279,16 @@ main:
             move $t3,$v0 # Mueve el índice a t3
             bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
             bge $t3,$s3,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
+
             li $v0,4
             la $a0,newval # Introducir el nuevo valor para ese índice
             syscall
-            li $v0,6 # Almavcena en f0 el elemento a cambiar
+            li $v0,6
             syscall
-            mov.s $f12,$f0
-            # Cambiar el elemento
+
+            mov.s $f12,$f0 # Almacena en f12 el valor a cambiar por otro del vector 
             la $a0,v1 # Cargo la dirección base de v1 en a0
-            move $a2,$t3 # Muevo el índice a a2
+            move $a1,$t3 # Muevo el índice a a2
             jal change_elto
             j mostrar_vectores
         opcion2_v1_fin:
@@ -300,33 +301,20 @@ main:
             syscall
             move $t3,$v0 # Mueve el índice a t3
             bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
-            bge $t3,$s4,error_indice # Si el índice a cambiar es mayor o igual que los índice de v2 mostrar mensaje de error
+            bge $t3,$s4,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
+
             li $v0,4
             la $a0,newval # Introducir el nuevo valor para ese índice
             syscall
-            li $v0,6
+            li $v0,6 # Almavcena en f0 el elemento a cambiar
             syscall
+
             mov.s $f12,$f0
-            # Cambiar el elemento
-            la $a0,v2 # Cargo la dirección base de v2 en a0
-            move $a2,$t3 # Muevo el índice a a2
+            la $a0,v2 # Cargo la dirección base de v1 en a0
+            move $a1,$t3 # Muevo el índice a a2
             jal change_elto
             j mostrar_vectores
-        opcion1_v2_fin:
-
-
-        
-
-        
-
-
-
-
-
-
-
-
-
+        opcion2_v2_fin:
 
     # Posibles errores
     errores:
