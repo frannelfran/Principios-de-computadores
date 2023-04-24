@@ -344,7 +344,3 @@ main:
         syscall
     opcion0_fin:
 # EXIT
-
-
-
-
