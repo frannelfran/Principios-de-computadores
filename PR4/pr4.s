@@ -184,6 +184,11 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
             mul $s4,$s3,size
             addu $s4,$s4,$s1
             l.s $f5,($s4)
+            mult_add:
+                mul.s $f20,$f4,$f5 # Multiplico los elementos de ambos vectores
+                add.s $f21,$f21,$f20 # Los sumo
+                mov.s $f0,$f21
+            mult_add_fin:
             addi $s3,$s3,1 #n++
             b for
         for_fin:
@@ -199,28 +204,6 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         add $sp,$sp,32
         jr $ra
     prod_esc_fin:
-
-    mult_add:
-        mul.s $f20,$f4,$f5 # Multiplico los elementos de ambos vectores
-        add.s $f21,$f21,$f20 # Los sumo
-    mult_add_fin:
-
-        
-
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 main:
     ##########################################################
