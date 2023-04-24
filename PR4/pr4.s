@@ -338,7 +338,7 @@ main:
     # Opción 0 (Termina el programa)
     opcion0:
         li $v0,4
-        la $a0,msg_fin
+        la $a0,msg_fin # Muestra mensaje de salida
         syscall
         li $v0,10
         syscall
