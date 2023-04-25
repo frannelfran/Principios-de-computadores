@@ -180,6 +180,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         move $s1,$a1 # Dirección de memoria de v2
         move $s2,$a2 # Número de elementos de v1 y v2
         li $s3,0 # Índice == n
+        li.s $f20,0.0 # Inicializo la suma
         # Buscar elementos de v1
         for: bge $s3,$s2,for_fin
             mul $s4,$s3,size
