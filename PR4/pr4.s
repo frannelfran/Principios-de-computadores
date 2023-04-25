@@ -39,13 +39,6 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     # $f4 == elementos de cada vector
     # $t3 == índice del elemento a cambiar
 
-    # EN LA PILA
-    # $s1 == dirección base de v1 y v2
-    # $s2 == número de elementos de v1 y v2
-    # $s3 == contador de elementos == n
-    # $s4 == Dirección donde se encuentra el elementos del vector
-    # $f5 == 1.0
-
     .text
 
     # Mostrar vectores
