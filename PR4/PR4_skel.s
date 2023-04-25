@@ -63,9 +63,11 @@ main:
         blt $t1,40,cargar_v2
         sw $t1,n2 # Guardamos el número de elementos de v2
     cargar_v2_fin:
+    
     li $v0,4
     la $a0,title # Muestra el título del programa
     syscall
+
     # Mostrar vectores
     move $t1,$zero # Reseteo el contador de elementos
     mostrar_vectores:

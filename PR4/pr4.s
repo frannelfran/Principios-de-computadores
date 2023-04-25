@@ -27,8 +27,6 @@ msg_prodesc:    .asciiz "\nEl producto escalar de los vectores es: "
 msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
 # Registros utilizados
-    # EN EL MAIN
-
     # $s1 == dirección base de v1
     # $s2 == dirección base de s2
     # $t1 == contador de elementos de v1 y v2
@@ -124,7 +122,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         move $s0,$a0 # Carga la dirección base de v1 o v2 en s0
         move $s1,$a1 # Carga el primer índice en s1
         move $s2,$a2 # Carga el segundo índice en s2
-
+        
         # Cargo el primer elemento
         mul $s3,$s1,size
         addu $s3,$s3,$s0
@@ -404,6 +402,39 @@ main:
             j mostrar_vectores
         opcion2_v2_fin:
     opcion2_fin:
+
+    ##########################################################
+    # OPCIÓN 3 (INVERTIR EL VECTOR)
+    ##########################################################
+    opcion3:
+        li $v0,4
+        la $a0,elige_vec # Pregunta con que vector quiere realizar el cambio
+        syscall
+        li $v0,5
+        syscall
+        move $t2,$v0 # Almacena la opción en t2
+        blez $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
+        bgt $t2,2,error_opcion # Si la opción es mayor que 2 mostrar mensaje de error
+        beq $t2,1,opcion3_v1 # Si la opcion es 1 realizar para v1
+        beq $t2,2,opcion3_v2 # si la opción es 2 realizar para v2
+
+        opcion3_v1:
+            la $a0,v1
+            li $t4,0 # Primer índice del vector
+            move $a1,$t4
+            lw $s4,n1
+            sub $s4,$s4,1 # Me situo en el último índice
+            move $a2,$s4
+            jal swap
+
+
+
+
+
+
+
+
+
 
     ##########################################################
     # OPCIÓN 4 (PRODUCTO ESCALAR)
