@@ -159,24 +159,22 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
     # Suma del producto escalar
     mult_add:
-        mul.s $f20,$f4,$f5 # Multiplico los elementos de ambos vectores
-        add.s $f21,$f21,$f20 # Los sumo
-        mov.s $f0,$f21
+        mul.s $f0,$f12,$f13 # Multiplico los elementos de ambos vectores
+        add.s $f0,$f0,$f14 # Los sumo
         jr $ra
     mult_add_fin:
 
     # Producto escalar
     prod_esc:
 
-        add $sp,$sp,-32
-        sw $ra, 28($sp)
-        sw $s0, 24($sp)
-        sw $s1, 20($sp)
-        sw $s2, 16($sp)
-        sw $s3, 12($sp)
-        sw $s4, 8($sp)
-        s.s $f20, 4($sp)
-        s.s $f21, 0($sp)
+        add $sp,$sp,-28
+        sw $ra, 24($sp)
+        sw $s0, 20($sp)
+        sw $s1, 16($sp)
+        sw $s2, 12($sp)
+        sw $s3, 8($sp)
+        sw $s4, 4($sp)
+        s.s $f20, 0($sp)
 
         move $s0,$a0 # Dirección de memoria de v1
         move $s1,$a1 # Dirección de memoria de v2
@@ -186,25 +184,27 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         for: bge $s3,$s2,for_fin
             mul $s4,$s3,size
             addu $s4,$s4,$s0
-            l.s $f4,($s4)
+            l.s $f12,($s4) # Almaceno en f12 los elementos de v1
             # Buscar elementos de v2
             mul $s4,$s3,size
             addu $s4,$s4,$s1
-            l.s $f5,($s4)
+            l.s $f13,($s4) # Almaceno en f13 los elementos de v2
+            mov.s $f14,$f20
             addi $s3,$s3,1 #n++
             jal mult_add
+            mov.s $f20,$f0
             b for
         for_fin:
-        mov.s $f0,$f21 # retorno el producot escalar
-        l.s $f21, 0($sp)
-        l.s $f20, 4($sp)
-        lw $s4, 8($sp)
-        lw $s3, 12($sp)
-        lw $s2, 16($sp)
-        lw $s1, 20($sp)
-        lw $s0, 24($sp)
-        lw $ra, 28($sp) 
-        add $sp,$sp,32
+        mov.s $f0,$f20
+
+        l.s $f20, 0($sp)
+        lw $s4, 4($sp)
+        lw $s3, 8($sp)
+        lw $s2, 12($sp)
+        lw $s1, 16($sp)
+        lw $s0, 20($sp)
+        lw $ra, 24($sp) 
+        add $sp,$sp,28
         jr $ra
     prod_esc_fin:
 
