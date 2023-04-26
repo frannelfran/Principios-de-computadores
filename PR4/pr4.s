@@ -116,6 +116,8 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         jr $ra
     swap_fin:
 
+    mirror:
+
     # Suma del producto escalar
     mult_add:
         mul.s $f0,$f12,$f13 # Multiplico los elementos de ambos vectores
@@ -388,11 +390,7 @@ main:
 
         opcion3_v1:
             la $a0,v1
-            li $t4,0 # Primer índice del vector
-            move $a1,$t4
-            lw $s4,n1
-            sub $s4,$s4,1 # Me situo en el último índice
-            move $a2,$s4
+            lw $a1,n1
             jal swap
 
 
