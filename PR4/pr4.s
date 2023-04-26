@@ -83,68 +83,36 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     # Cambiar elemento
     change_elto:
 
-        add $sp,$sp,-20
-        sw $ra, 16($sp)
-        sw $s0, 12($sp)
-        sw $s1, 8($sp)
-        sw $s2, 4($sp)
-        s.s $f20, 0($sp)
+        move $t0,$a0 # Carga la dirección base de v1 o v2 en s0
+        move $t1,$a1 # Muevo el índice a s1
+        mov.s $f4,$f12
 
-        move $s0,$a0 # Carga la dirección base de v1 o v2 en s0
-        move $s1,$a1 # Muevo el índice a s1
-        mov.s $f20,$f12
+        mul $t2,$t1,size
+        addu $t2,$t2,$t0 # Busca la dirección del índice marcado
+        s.s $f4,($t2) # Cambia el elemento
 
-        mul $s2,$s1,size
-        addu $s2,$s2,$s0 # Busca la dirección del índice marcado
-        s.s $f20,($s2) # Cambia el elemento
-
-        l.s $f20, 0($sp)
-        lw $s2, 4($sp)
-        lw $s1, 8($sp)
-        lw $s0, 12($sp)
-        lw $ra, 16($sp)
-        add $sp,$sp,20
         jr $ra
     change_elto_fin:
 
     # Invertir vector
     swap:
-        add $sp,$sp,-32
-        sw $ra, 28($sp)
-        sw $s0, 24($sp)
-        sw $s1, 20($sp)
-        sw $s2, 16($sp)
-        sw $s3, 12($sp)
-        s.s $f20, 8($sp)
-        sw $s5, 4($sp)
-        s.s $f21, 0($sp)
 
-        move $s0,$a0 # Carga la dirección base de v1 o v2 en s0
-        move $s1,$a1 # Carga el primer índice en s1
-        move $s2,$a2 # Carga el segundo índice en s2
+        move $t0,$a0 # Carga la dirección base de v1 o v2 en s0
+        move $t1,$a1 # Carga el primer índice en s1
+        move $t2,$a2 # Carga el segundo índice en s2
         
         # Cargo el primer elemento
-        mul $s3,$s1,size
-        addu $s3,$s3,$s0
-        l.s $f20,($s3) # Cargo el elemento en s4
+        mul $t3,$t1,size
+        addu $t3,$t3,$t0
+        l.s $f4,($t3) # Cargo el elemento en s4
 
-        mul $s5,$s2,size
-        addu $s5,$s5,$s0
-        l.s $f21,($s5) # Cargo el segundo elemento en f21
+        mul $t5,$t2,size
+        addu $t5,$t5,$t0
+        l.s $f5,($t5) # Cargo el segundo elemento en f21
 
         # Intercambio elementos
-        s.s $f20,($s5)
-        s.s $f21,($s3)
-
-        l.s $f21, 0($sp)
-        lw $s5, 4($sp)
-        l.s $f20, 8($sp)
-        lw $s3, 12($sp)
-        lw $s2, 16($sp)
-        lw $s1, 20($sp)
-        lw $s0, 24($sp)
-        lw $ra, 28($sp)
-        add $sp,$sp,32
+        s.s $f4,($t5)
+        s.s $f5,($t3)
         jr $ra
     swap_fin:
 
