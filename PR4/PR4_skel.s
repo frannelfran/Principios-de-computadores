@@ -373,6 +373,7 @@ main:
         beq $t2,1,opcion2_v1 # Si la opcion es 1 realizar para v1
         beq $t2,2,opcion2_v2 # si la opción es 2 realizar para v2
 
+        # Opción 2 para v1
         opcion2_v1:
             li $v0,4
             la $a0,elige_elto # Pregunta por el índice a cambiar
@@ -396,6 +397,7 @@ main:
             j mostrar_vectores
         opcion2_v1_fin:
 
+        # Opción 2 para v2
         opcion2_v2:
             li $v0,4
             la $a0,elige_elto # Pregunta por el índice a cambiar
@@ -435,6 +437,7 @@ main:
         beq $t2,1,opcion3_v1 # Si la opcion es 1 realizar para v1
         beq $t2,2,opcion3_v2 # si la opción es 2 realizar para v2
 
+        # Opción 3 para v1
         opcion3_v1:
             la $a0,v1
             lw $a1,n1
@@ -442,6 +445,7 @@ main:
             j mostrar_vectores
         opcion3_v1_fin:
 
+        # Opción 3 para v2
         opcion3_v2:
             la $a0,v2
             lw $a1,n2
