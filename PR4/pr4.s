@@ -128,7 +128,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         add $sp,$sp,-4
         sw $ra, 0($sp)
         
-        ble $a1,1,fin # Si el número de elementos es menor o igual que 1 retornar el vector
+        ble $a1,1,fin # Si el número de elementos es menor o igual que 1 terminar de invertir
         invertir:
 
             add $sp,$sp,-12
