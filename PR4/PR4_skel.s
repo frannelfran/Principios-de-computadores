@@ -1,5 +1,5 @@
-# Autor: 
-# Fecha ultima modificacion: 
+# Autor: Franco Alla
+# Fecha ultima modificacion: 27/04/2023
 
 size = 4     # bytes que ocupa cada elemento
 maxdim = 40  # dimension maxima que puede tener un vector
@@ -26,28 +26,205 @@ error_d_dim:    .asciiz "\nError: Los vectores tienen distinta dimension.\n"
 msg_prodesc:    .asciiz "\nEl producto escalar de los vectores es: "
 msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
-    # Registros utilizados
+# Registros utilizados
     # $s1 == dirección base de v1
     # $s2 == dirección base de s2
     # $t1 == contador de elementos de v1 y v2
     # $t2 == opciones del menú
     # $s3 == dimensión de v1
     # $s4 == dimensión de v2
-    # $3 == direccionamiento de cada número
+    # $v1 == direccionamiento de cada número
     # $f4 == elementos de cada vector
     # $t3 == índice del elemento a cambiar
-    # $f5 == 1.0
 
     .text
+
+    ##########################################################
+    # IMPRIMIR EL VECTOR
+    ##########################################################
+    print_vec:
+
+        add $sp,$sp,-24
+        sw $ra, 20($sp)
+        sw $s1, 16($sp)
+        sw $s2, 12($sp)
+        sw $s3, 8($sp)
+        sw $s4, 4($sp)
+        sw $s5, 0($sp)
+
+        move $s1,$a0 # Carga la dirección base de v1 o v2 en s1
+        move $s2,$a1 # Carga el número de elementos de v1 o v2 en s2
+        move $s5,$a2 # Mueve el asciiz "space" a s5
+        li $s3,0 # Inicializo el contador n
+
+        vector:
+            mul $s4,$s3,size
+            addu $s4,$s4,$s1 # Busco el elemento
+            l.s $f4,($s4) # Cargo el elemento en f4
+            addi $s3,$s3,1 # n++
+
+            li $v0,2
+            mov.s $f12,$f4
+            syscall
+
+            li $v0,4
+            move $a0,$s5
+            syscall
+            blt $s3,$s2,vector
+        vector_fin:
+
+        lw $s5, 0($sp)
+        lw $s4, 4($sp)
+        lw $s3, 8($sp)
+        lw $s2, 12($sp)
+        lw $s1, 16($sp)
+        lw $ra, 20($sp)
+        add $sp,$sp,24
+        jr $ra
+    print_vec_fin:
+
+    ##########################################################
+    # CAMBIAR ELEMENTO
+    ##########################################################
+    change_elto:
+
+        move $t0,$a0 # Carga la dirección base de v1 o v2 en s0
+        move $t1,$a1 # Muevo el índice a s1
+        mov.s $f4,$f12
+
+        mul $t2,$t1,size
+        addu $t2,$t2,$t0 # Busca la dirección del índice marcado
+        s.s $f4,($t2) # Cambia el elemento
+
+        jr $ra
+    change_elto_fin:
+
+    ##########################################################
+    # INVERTIR EL VECTOR
+    ##########################################################
+    swap:
+        
+        move $t0,$a0 # Carga la dirección base de v1 o v2 en t0
+        move $t1,$a1 # Carga el primer índice en t1
+        move $t2,$a2 # Carga el segundo índice en t2
+        
+        # Cargo el primer elemento
+        mul $t3,$t1,size
+        addu $t3,$t3,$t0
+        l.s $f4,($t3) # Cargo el elemento en f4
+
+        mul $t5,$t2,size
+        addu $t5,$t5,$t0
+        l.s $f5,($t5) # Cargo el segundo elemento en f5
+
+        # Intercambio elementos
+        s.s $f4,($t5)
+        s.s $f5,($t3)
+        jr $ra
+    swap_fin:
+
+    mirror:
+    
+        add $sp,$sp,-4
+        sw $ra, 0($sp)
+        
+        ble $a1,1,fin # Si el número de elementos es menor o igual que 1 terminar de invertir
+        invertir:
+
+            add $sp,$sp,-12
+            sw $ra, 8($sp)
+            sw $a0, 4($sp)
+            sw $a1, 0($sp)
+            
+            move $t3,$a1 # Muevo el número de elementos a t3
+            move $a1,$zero # Reseteo el número de elementos
+            sub $a2,$t3,1 # último elemento del vector
+
+            jal swap
+            lw $a1, 0($sp)
+            lw $a0, 4($sp)
+            lw $ra, 8($sp)
+            add $sp,$sp,12
+
+            sub $a1,$a1,2 # Resto al número de elementos 2
+            addi $a0,$a0,4 # avanzo a los siguientes elementos
+            jal mirror
+        invertir_fin:
+
+        lw $ra, 0($sp)
+        add $sp,$sp,4
+        fin:
+        jr $ra
+    mirror_fin:
+
+    ##########################################################
+    # SUMA DEL PRODUCTO ESCALAR
+    ##########################################################
+    mult_add:
+        mul.s $f0,$f12,$f13 # Multiplico los elementos de ambos vectores
+        add.s $f0,$f0,$f14 # Los sumo
+        jr $ra
+    mult_add_fin:
+
+    ##########################################################
+    # PRODUCTO ESCALAR
+    ##########################################################
+    prod_esc:
+
+        add $sp,$sp,-28
+        sw $ra, 24($sp)
+        sw $s0, 20($sp)
+        sw $s1, 16($sp)
+        sw $s2, 12($sp)
+        sw $s3, 8($sp)
+        sw $s4, 4($sp)
+        s.s $f20, 0($sp)
+
+        move $s0,$a0 # Dirección de memoria de v1
+        move $s1,$a1 # Dirección de memoria de v2
+        move $s2,$a2 # Número de elementos de v1 y v2
+        li $s3,0 # Índice == n
+        li.s $f20,0.0 # Inicializo la suma
+        # Buscar elementos de v1
+        for: bge $s3,$s2,for_fin
+            mul $s4,$s3,size
+            addu $s4,$s4,$s0
+            l.s $f12,($s4) # Almaceno en f12 los elementos de v1
+            # Buscar elementos de v2
+            mul $s4,$s3,size
+            addu $s4,$s4,$s1
+            l.s $f13,($s4) # Almaceno en f13 los elementos de v2
+            mov.s $f14,$f20
+            addi $s3,$s3,1 #n++
+            jal mult_add
+            mov.s $f20,$f0
+            b for
+        for_fin:
+        mov.s $f0,$f20
+
+        l.s $f20, 0($sp)
+        lw $s4, 4($sp)
+        lw $s3, 8($sp)
+        lw $s2, 12($sp)
+        lw $s1, 16($sp)
+        lw $s0, 20($sp)
+        lw $ra, 24($sp) 
+        add $sp,$sp,28
+        jr $ra
+    prod_esc_fin:
+
 main:
+    ##########################################################
+    # PONER LOS VECTORES EN MEMORIA
+    ##########################################################
     li.s $f5,1.0
     # Poner en memoria los vectores
     li.s $f4,10.0
     cargar_v1:
-        s.s $f4,v1($3) # Guardar los elementos
+        s.s $f4,v1($v1) # Guardar los elementos
         add.s $f4,$f4,$f5 # Siguiente elemento
         addi $t1,$t1,1 # n++
-        addi $3,$3,4 # Siguiente dirección de memoria
+        addi $v1,$v1,4 # Siguiente dirección de memoria
         blt $t1,40,cargar_v1
         sw $t1,n1 # Guardamos el número de elementos de v1
     cargar_v1_fin:
@@ -56,81 +233,73 @@ main:
     move $3,$zero
     move $t1,$zero
     cargar_v2:
-        s.s $f4,v2($3) # Guardar elementos
+        s.s $f4,v2($v1) # Guardar elementos
         sub.s $f4,$f4,$f5 # Siguiente elemento
         addi $t1,$t1,1 # n++
-        addi $3,$3,4 # Siguiente direcció de memoria
+        addi $v1,$v1,4 # Siguiente direcció de memoria
         blt $t1,40,cargar_v2
         sw $t1,n2 # Guardamos el número de elementos de v2
     cargar_v2_fin:
-    
+
     li $v0,4
     la $a0,title # Muestra el título del programa
     syscall
 
-    # Mostrar vectores
-    move $t1,$zero # Reseteo el contador de elementos
+    ##########################################################
+    # MOSTRAR VECTORES
+    ##########################################################
     mostrar_vectores:
+
         li $v0,4
-        la $a0,cabvec 
+        la $a0,cabvec
         syscall
-        lw $s3,n1 # Carga el número de elementos de v1 en s3
+        lw $s3,n1
         li $v0,1
-        move $a0,$s3 # Lo muestra por consola
+        move $a0,$s3 # Muestra el número de elementos del vector
         syscall
+
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        move $t1,$zero
-        la $s1,v1 # Carga la dirección base de v1
-        vector_v1:
-            mul $t4,$t1,size
-            addu $t4,$t4,$s1 # Busco el elemento
-            l.s $f4,($t4) # Cargo el elemento en f4
-            li $v0,2
-            mov.s $f12,$f4 # Mostrar el elemento
-            syscall
-            li $v0,4
-            la $a0,space # Deja un espacio entre los elementos
-            syscall
-            addi $t1,$t1,1 # n++
-            blt $t1,$s3,vector_v1
+
+        # Muestra v1 por consola
+        vector_v1: 
+            la $a0,v1 # Carga la dirección base de v1 en a0
+            lw $a1,n1 # Carga en a1 el número de elementos de v1
+            la $a2,space # Cargo el asciiz "space" en a2
+            jal print_vec
         vector_v1_fin:
 
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
         li $v0,4
-        la $a0,cabvec # Muestra el número de elementos de v2
+        la $a0,cabvec  # Muestra el número de elementos de v2
         syscall
         lw $s4,n2 # Carga el número de elementos de v2 en s4
         li $v0,1
-        move $a0,$s4 # Lo muestra por consola
+        move $a0,$s4
         syscall
         li $v0,4
         la $a0,newline # Nueva línea
         syscall
-        move $t1,$zero # Reseteo el contador de elementos
-        la $s2,v2 # Carga la dirección base de v2
-        vector_v2:
-            mul $t4,$t1,size
-            addu $t4,$t4,$s2 # Busco el elemento
-            l.s $f4,($t4) # Cargo el elemento en f4
-            li $v0,2
-            mov.s $f12,$f4 # Mostrar el elemento
-            syscall
-            li $v0,4
-            la $a0,space # Deja un espacio entre los elementos
-            syscall
-            addi $t1,$t1,1 # n++
-            blt $t1,$s4,vector_v2
-        vector_v2_fin:
-    mostrar_vectores_fin:
-    
-    li $v0,4
-    la $a0,newline # Nueva línea
-    syscall
 
+        # Muestra v2 por consola
+        vector_v2: 
+            la $a0,v2 # Carga la dirección base de v1 en a0
+            lw $a1,n2 # Carga en a1 el número de elementos de v1
+            la $a2,space # Cargo el asciiz "space" en a2
+            jal print_vec
+        vector_v2_fin:
+
+        li $v0,4
+        la $a0,newline # Nueva línea
+        syscall
+    mostrar_vectores_fin:
+
+    ##########################################################
+    # MOSTRAR MENÚ
+    ########################################################## 
     opciones_menu:
         li $v0,4
         la $a0,menu # Muestra el menú por consola
@@ -142,12 +311,14 @@ main:
         bltz $t2,error_opcion # Si la opción es menor que 0 mostrar mensaje de error
         beqz $t2,opcion0 # Si la opción es 0 salir del programa
         beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
-        beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento del vector
+        beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento
         beq $t2,3,opcion3 # Si la opción es 3 invertir el vector
-        beq $t2,4,opcion4 # Si la opción es 4 hacer el producto escalar de v1 y v2
+        beq $t2,4,opcion4 # Si la opción es 4 realizar el producto escalar de los vectores
     opciones_menu_fin:
 
-    # Opción 1 (Cambiar dimensión de un vector)
+    ##########################################################
+    # OPCIÓN 1 (CAMBIAR LA DIMENSIÓN DE UN VECTOR)
+    ##########################################################
     opcion1:
         li $v0,4
         la $a0,elige_vec # Pregunta con que vector quiere realizar la operación
@@ -183,11 +354,13 @@ main:
         move $t2,$v0
         bgt $t2,40,error_dimension # Si la dimensión intorducida es mayor que 40 mostrar mensaje de error
         blez $t2,error_dimension # Si la dimensión es menor o igual que 0 mostrar mensaje de error
-        sw $t2,n2 # Guardar la nueva dimensión de v1
+        sw $t2,n2 # Guardar la nueva dimensión de v2
         j mostrar_vectores
     opcion1_fin:
 
-    # Opción2 (Cambio elemento)
+    ##########################################################
+    # OPCIÓN 2 (CAMBIAR UN ELEMENTO)
+    ##########################################################
     opcion2:
         li $v0,4
         la $a0,elige_vec # Pregunta con que vector quieres realizar la operación
@@ -200,54 +373,56 @@ main:
         beq $t2,1,opcion2_v1 # Si la opcion es 1 realizar para v1
         beq $t2,2,opcion2_v2 # si la opción es 2 realizar para v2
 
-        # Opción 2 para v1
         opcion2_v1:
-        li $v0,4
-        la $a0,elige_elto # Pregunta por el índice a cambiar
-        syscall
-        li $v0,5
-        syscall
-        move $t3,$v0 # Mueve el índice a t3
-        bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
-        bge $t3,$s3,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
-        li $v0,4
-        la $a0,newval # Introducir el nuevo valor para ese índice
-        syscall
-        li $v0,6
-        syscall
-        mov.s $f4,$f0 # Mueve el nuevo valor a f4
-        # Cambiar el elemento
-        la $s1,v1 # Cargo la dirección base de v1 en s1
-        mul $t4,$t3,size
-        addu $t4,$t4,$s1 # Busco el valor
-        s.s $f4,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
-        j mostrar_vectores
+            li $v0,4
+            la $a0,elige_elto # Pregunta por el índice a cambiar
+            syscall
+            li $v0,5
+            syscall
+            move $t3,$v0 # Mueve el índice a t3
+            bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
+            bge $t3,$s3,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
 
-        # Opción 2 para v2
+            li $v0,4
+            la $a0,newval # Introducir el nuevo valor para ese índice
+            syscall
+            li $v0,6
+            syscall
+
+            mov.s $f12,$f0 # Almacena en f12 el valor a cambiar por otro del vector 
+            la $a0,v1 # Cargo la dirección base de v1 en a0
+            move $a1,$t3 # Muevo el índice a a2
+            jal change_elto
+            j mostrar_vectores
+        opcion2_v1_fin:
+
         opcion2_v2:
-        li $v0,4
-        la $a0,elige_elto # Pregunta por el índice a cambiar
-        syscall
-        li $v0,5
-        syscall
-        move $t3,$v0 # Mueve el índice a t3
-        bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
-        bge $t3,$s4,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
-        li $v0,4
-        la $a0,newval # Introducir el nuevo valor para ese índice
-        syscall
-        li $v0,6
-        syscall
-        mov.s $f4,$f0 # Mueve el nuevo valor a f4
-        # Cambiar el elemento
-        la $s4,v2 # Cargo la dirección base de v2 en s2
-        mul $t4,$t3,size
-        addu $t4,$t4,$s4 # Busco el valor
-        s.s $f4,($t4) # Cargo el nuevo valor en la dirección de memoria indicada
-        j mostrar_vectores
+            li $v0,4
+            la $a0,elige_elto # Pregunta por el índice a cambiar
+            syscall
+            li $v0,5
+            syscall
+            move $t3,$v0 # Mueve el índice a t3
+            bltz $t3,error_indice # Si el índice es menor o igual a 0 mostrar mensaje de error
+            bge $t3,$s4,error_indice # Si el índice a cambiar es mayor o igual que los índice de v1 mostrar mensaje de error
+
+            li $v0,4
+            la $a0,newval # Introducir el nuevo valor para ese índice
+            syscall
+            li $v0,6 # Almavcena en f0 el elemento a cambiar
+            syscall
+
+            mov.s $f12,$f0
+            la $a0,v2 # Cargo la dirección base de v1 en a0
+            move $a1,$t3 # Muevo el índice a a2
+            jal change_elto
+            j mostrar_vectores
+        opcion2_v2_fin:
     opcion2_fin:
 
-    # Opción 3 (Invierte vector)
+    ##########################################################
+    # OPCIÓN 3 (INVERTIR EL VECTOR)
+    ##########################################################
     opcion3:
         li $v0,4
         la $a0,elige_vec # Pregunta con que vector quiere realizar el cambio
@@ -260,93 +435,44 @@ main:
         beq $t2,1,opcion3_v1 # Si la opcion es 1 realizar para v1
         beq $t2,2,opcion3_v2 # si la opción es 2 realizar para v2
 
-        # Opción 3 para v1
         opcion3_v1:
-        la $s1,v1 # Cargo la dirección base de v1
-        lw $s3,n1 # Cargo el número de elementos de v1
-        move $t1,$s3
-        sub $t1,$t1,1 # n--
-        move $t6,$zero # n++
-        move $t5,$zero # Almacena la dirección de memoria de los primeros índices iniciales
+            la $a0,v1
+            lw $a1,n1
+            jal mirror
+            j mostrar_vectores
+        opcion3_v1_fin:
 
-        # Invertir v1
-        invertir_v1:
-        # Busco el último elemento
-        mul $t4,$t1,size # Cargo el último número
-        addu $t4,$t4,$s1 # Lo busco
-        l.s $f4,($t4) # Cargo el número en f4
-        # Busco el primer elemento
-        mul $t5,$t6,size
-        addu $t5,$t5,$s1
-        l.s $f5,($t5)
-        # Intercambiar los elementos
-        s.s $f5,($t4)
-        s.s $f4,($t5)
-        addi $t6,$t6,1
-        sub $t1,$t1,1
-        div $t7,$s3,2
-        blt $t6,$t7,invertir_v1
-        j mostrar_vectores
-
-        # Opción 3 para v2
         opcion3_v2:
-        la $s2,v2 # Cargo la dirección base de v2
-        lw $s4,n2 # Cargo el número de elementos de v2
-        move $t1,$s4
-        sub $t1,$t1,1 # n--
-        move $t6,$zero # n++
-        div $t7,$s4,2
-        invertir_v2:
-        # Busco el último elemento
-        mul $t4,$t1,size # Cargo el último número
-        addu $t4,$t4,$s2 # Lo busco
-        l.s $f4,($t4) # Cargo el número en f4
-        # Busco el primer elemento
-        mul $t5,$t6,size
-        addu $t5,$t5,$s2
-        l.s $f5,($t5)
-        # Intercambiar los elementos
-        s.s $f5,($t4)
-        s.s $f4,($t5) # Guardo el último elemento el las priemras direcciones de memoria
-        addi $t6,$t6,1 # n++
-        sub $t1,$t1,1 # n--
-        blt $t6,$t7,invertir_v2
-        j mostrar_vectores
+            la $a0,v2
+            lw $a1,n2
+            jal mirror
+            j mostrar_vectores
+        opcion3_v2_fin:
     opcion3_fin:
 
+    ##########################################################
+    # OPCIÓN 4 (PRODUCTO ESCALAR)
+    ##########################################################
     opcion4:
         lw $s3,n1 # Cargo el número de elementos de v1
         lw $s4,n2 # Cargo el nñumero de elementos de v2
         bne $s3,$s4,error_dimension_distinta # Si los vectores tienen distinta dimensión mostrar mensaje de error
-        # Dirección base de los vectores
-        la $s1,v1
-        la $s2,v2
-        # Reseteo de valores
-        move $t1,$zero
-        li.s $f6,0.0
-        producto:
-        # Busco los elmentos de v1
-        mul $t4,$t1,size
-        addu $t4,$t4,$s1
-        l.s $f4,($t4)
-        # Busclo los elementos de v2
-        mul $t5,$t1,size
-        addu $t5,$t5,$s2
-        l.s $f5,($t5)
-        mul.s $f3,$f4,$f5 # Multiplica el primer elemento de v1 con el primero de v2
-        add.s $f6,$f6,$f3 # Va sumando los productos
-        add $t1,$t1,1 # n++
-        blt $t1,$s3,producto
+        la $a0,v1
+        la $a1,v2
+        lw $a2,n1
+        jal prod_esc
         li $v0,4
-        la $a0,msg_prodesc # Muestra el producto escalar de los vectores
+        la $a0,msg_prodesc
         syscall
         li $v0,2
-        mov.s $f12,$f6
+        mov.s $f12,$f0 # Muestro la suma
         syscall
         j mostrar_vectores
     opcion4_fin:
 
-    # Posibles errores
+    ##########################################################
+    # POSIBLES ERRORES
+    ##########################################################
     errores:
         error_opcion:
         li $v0,4
@@ -370,10 +496,12 @@ main:
         j mostrar_vectores
     errores_fin:
 
-    # Opción 0 (Salir del programa)
+    ##########################################################
+    # OPCIÓN 0 (TERMINA EL PROGRAMA
+    ##########################################################
     opcion0:
         li $v0,4
-        la $a0,msg_fin # Salir del programa
+        la $a0,msg_fin # Muestra mensaje de salida
         syscall
         li $v0,10
         syscall
