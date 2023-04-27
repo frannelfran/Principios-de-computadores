@@ -466,7 +466,7 @@ main:
         lw $a2,n1
         jal prod_esc
         li $v0,4
-        la $a0,msg_prodesc
+        la $a0,msg_prodesc # Muestro el producto escalar
         syscall
         li $v0,2
         mov.s $f12,$f0 # Muestro la suma
