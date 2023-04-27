@@ -1,5 +1,5 @@
-# Autor: 
-# Fecha ultima modificacion: 
+# Autor: Franco Alla
+# Fecha ultima modificacion: 27/04/2023
 
 size = 4     # bytes que ocupa cada elemento
 maxdim = 40  # dimension maxima que puede tener un vector
@@ -39,8 +39,11 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
 
     .text
 
-    # Mostrar vectores
+    ##########################################################
+    # IMPRIMIR EL VECTOR
+    ##########################################################
     print_vec:
+
         add $sp,$sp,-24
         sw $ra, 20($sp)
         sw $s1, 16($sp)
@@ -94,21 +97,23 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         jr $ra
     change_elto_fin:
 
-    # Invertir vector
+    ##########################################################
+    # INVERTIR EL VECTOR
+    ##########################################################
     swap:
-
-        move $t0,$a0 # Carga la dirección base de v1 o v2 en s0
-        move $t1,$a1 # Carga el primer índice en s1
-        move $t2,$a2 # Carga el segundo índice en s2
+        
+        move $t0,$a0 # Carga la dirección base de v1 o v2 en t0
+        move $t1,$a1 # Carga el primer índice en t1
+        move $t2,$a2 # Carga el segundo índice en t2
         
         # Cargo el primer elemento
         mul $t3,$t1,size
         addu $t3,$t3,$t0
-        l.s $f4,($t3) # Cargo el elemento en s4
+        l.s $f4,($t3) # Cargo el elemento en f4
 
         mul $t5,$t2,size
         addu $t5,$t5,$t0
-        l.s $f5,($t5) # Cargo el segundo elemento en f21
+        l.s $f5,($t5) # Cargo el segundo elemento en f5
 
         # Intercambio elementos
         s.s $f4,($t5)
@@ -117,15 +122,51 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     swap_fin:
 
     mirror:
+    
+        add $sp,$sp,-4
+        sw $ra, 0($sp)
+        
+        ble $a1,1,fin # Si el número de elementos es menor o igual que 1 retornar el vector
+        invertir:
 
-    # Suma del producto escalar
+            add $sp,$sp,-12
+            sw $ra, 8($sp)
+            sw $a0, 4($sp)
+            sw $a1, 0($sp)
+            
+            move $t3,$a1 # Muevo el número de elementos a t3
+            move $a1,$zero # Reseteo el número de elementos
+            sub $a2,$t3,1 # último elemento del vector
+
+            jal swap
+            lw $a1, 0($sp)
+            lw $a0, 4($sp)
+            lw $ra, 8($sp)
+            add $sp,$sp,12
+
+            sub $a1,$a1,2 # Resto al número de elementos 2
+            addi $a0,$a0,4 # avanzo a los siguientes elementos
+            jal mirror
+        invertir_fin:
+
+        lw $ra, 0($sp)
+        add $sp,$sp,4
+        fin:
+        jr $ra
+    mirror_fin:
+
+    ##########################################################
+    # SUMA DEL PRODUCTO ESCALAR
+    ##########################################################
     mult_add:
         mul.s $f0,$f12,$f13 # Multiplico los elementos de ambos vectores
         add.s $f0,$f0,$f14 # Los sumo
         jr $ra
     mult_add_fin:
 
-    # Producto escalar
+    ##########################################################
+    # PRODUCTO ESCALAR
+    ##########################################################
     prod_esc:
 
         add $sp,$sp,-28
@@ -201,6 +242,7 @@ main:
     li $v0,4
     la $a0,title # Muestra el título del programa
     syscall
+
     ##########################################################
     # MOSTRAR VECTORES
     ##########################################################
@@ -252,6 +294,7 @@ main:
         la $a0,newline # Nueva línea
         syscall
     mostrar_vectores_fin:
+
     ##########################################################
     # MOSTRAR MENÚ
     ########################################################## 
@@ -267,9 +310,10 @@ main:
         beqz $t2,opcion0 # Si la opción es 0 salir del programa
         beq $t2,1,opcion1 # Si la opción es 1 cambiar la dimensión de un vector
         beq $t2,2,opcion2 # Si la opción es 2 cambiar un elemento
-        # beq $t2,3,opcion3 # Si la opción es 3 invertir el vector
+        beq $t2,3,opcion3 # Si la opción es 3 invertir el vector
         beq $t2,4,opcion4 # Si la opción es 4 realizar el producto escalar de los vectores
     opciones_menu_fin:
+
     ##########################################################
     # OPCIÓN 1 (CAMBIAR LA DIMENSIÓN DE UN VECTOR)
     ##########################################################
@@ -311,6 +355,7 @@ main:
         sw $t2,n2 # Guardar la nueva dimensión de v2
         j mostrar_vectores
     opcion1_fin:
+
     ##########################################################
     # OPCIÓN 2 (CAMBIAR UN ELEMENTO)
     ##########################################################
@@ -391,16 +436,17 @@ main:
         opcion3_v1:
             la $a0,v1
             lw $a1,n1
-            jal swap
+            jal mirror
+            j mostrar_vectores
+        opcion3_v1_fin:
 
-
-
-
-
-
-
-
-
+        opcion3_v2:
+            la $a0,v2
+            lw $a1,n2
+            jal mirror
+            j mostrar_vectores
+        opcion3_v2_fin:
+    opcion3_fin:
 
     ##########################################################
     # OPCIÓN 4 (PRODUCTO ESCALAR)
@@ -422,7 +468,9 @@ main:
         j mostrar_vectores
     opcion4_fin:
 
-    # Posibles errores
+    ##########################################################
+    # POSIBLES ERRORES
+    ##########################################################
     errores:
         error_opcion:
         li $v0,4
@@ -446,7 +494,9 @@ main:
         j mostrar_vectores
     errores_fin:
 
-    # Opción 0 (Termina el programa)
+    ##########################################################
+    # OPCIÓN 0 (TERMINA EL PROGRAMA
+    ##########################################################
     opcion0:
         li $v0,4
         la $a0,msg_fin # Muestra mensaje de salida
