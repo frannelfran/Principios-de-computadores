@@ -33,7 +33,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
     # $t2 == opciones del menú
     # $s3 == dimensión de v1
     # $s4 == dimensión de v2
-    # $3 == direccionamiento de cada número
+    # $v1 == direccionamiento de cada número
     # $f4 == elementos de cada vector
     # $t3 == índice del elemento a cambiar
 
@@ -83,7 +83,9 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         jr $ra
     print_vec_fin:
 
-    # Cambiar elemento
+    ##########################################################
+    # CAMBIAR ELEMENTO
+    ##########################################################
     change_elto:
 
         move $t0,$a0 # Carga la dirección base de v1 o v2 en s0
