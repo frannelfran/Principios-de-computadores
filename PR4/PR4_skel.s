@@ -57,7 +57,7 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
         move $s5,$a2 # Mueve el asciiz "space" a s5
         li $s3,0 # Inicializo el contador n
 
-        vector:
+        for1: bge $s3,$s2,for1_fin
             mul $s4,$s3,size
             addu $s4,$s4,$s1 # Busco el elemento
             l.s $f4,($s4) # Cargo el elemento en f4
@@ -70,8 +70,8 @@ msg_fin:    .asciiz "\nFIN DEL PROGRAMA."
             li $v0,4
             move $a0,$s5
             syscall
-            blt $s3,$s2,vector
-        vector_fin:
+            b for1
+        for1_fin:
 
         lw $s5, 0($sp)
         lw $s4, 4($sp)
