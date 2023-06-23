@@ -39,6 +39,7 @@ separador:  .asciiz "  " # separador entre numeros
 newline:    .asciiz "\n"
 menu:       .ascii  "\n(1) Cambiar dimensiones\n(2) Intercambiar dos elemento\n"
             .ascii  "(3) Suma elementos del perimetro\n(4) Calcula max y min de la diagonal\n"
+            .ascii  "(5) Intercambiar fila/columna\n"
             .asciiz "(0) Salir\n\nElija opcion: "
 
 error_op:   .asciiz "\nError: opcion incorrecta.\n"
