@@ -16,7 +16,7 @@ cadfinprogram: .asciiz "\n\nTermina el programa\n"
     # $t2 == s
     # $t3 == x == $f5
 
-    main:
+main:
     li $v0,4
     la $a0,titulo
     syscall
@@ -90,3 +90,4 @@ cadfinprogram: .asciiz "\n\nTermina el programa\n"
     syscall
     li $v0,10
     syscall
+# EXIT
