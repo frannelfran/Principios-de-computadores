@@ -1,94 +1,92 @@
-# Programa que calcula la imagen de los distintos intervalos de un rango en un polinomio de grado 3
     .data
-cadpregunta:    .asciiz "Evaluacion polinomio f(x) = a x^3  + b x^2 + c x + d  en un intervalo [r,s]\n"
-cadpedirparam:  .asciiz "Introduzca los valores de a,b,c y d (separados por retorno de carro):\n"
-cadpedir_r_s:   .asciiz "Introduzca [r,s] (r y s enteros, r <= s)  (separados por retorno de carro):\n"
-cadsol1:        .asciiz "\nf("
-cadsol2:        .asciiz ") = "
-cadfinprogram:  .asciiz "\nTermina el programa\n"
-    # Variables utilizadas     
+titulo: .ascii "\nEvaluacion polinomio f(x) = a x^3  + b x^2 + c x + d  en un intervalo [r,s]\n"
+        .asciiz "\nIntroduzca los valores de a,b,c y d (separados por retorno de carro):\n"
+cadrs: .asciiz "Introduzca [r,s] (r y s enteros, r <= s)  (separados por retorno de carro):\n"
+cadprimparen: .asciiz "\nf("
+cadsegunparen: .asciiz ") = "
+cadfinprogram: .asciiz "\n\nTermina el programa\n"
+
+    .text
+    # REGISTROS UTILIZADOS
     # $f1 == a
     # $f2 == b
     # $f3 == c
     # $f4 == d
     # $t1 == r
     # $t2 == s
-    # $t3 == x == $f10
-    .text
-main:
+    # $t3 == x == $f5
+
+    main:
     li $v0,4
-    la $a0,cadpregunta # Muestra por pantalla el enunciado del problema 
+    la $a0,titulo
     syscall
-    li $v0,4
-    la $a0,cadpedirparam # Pide por pantalla los parámetros a, b, c d
-    syscall
+    # Introducir los parámetros
     li $v0,6
     syscall
-    mov.s $f1,$f0 # Carga el valor de a en f1
-    mov.s $f20,$f1 # Copia de a
+    mov.s $f1,$f0 # Mueve el parámetro "a" a f2
     li $v0,6
     syscall
-    mov.s $f2,$f0 # Carga el valor de b en f2
-    mov.s $f21,$f2 # Copia de b
+    mov.s $f2,$f0 # Mueve el parámetro "b" a f4
     li $v0,6
     syscall
-    mov.s $f3,$f0 # Carga el valor de la c en f3
-    mov.s $f22,$f3 # Copia de c
+    mov.s $f3,$f0 # Mueve el parámetro "c" a f6
     li $v0,6
     syscall
-    mov.s $f4,$f0 # Carga el valor de la d en f4
-    mov.s $f23,$f4 # Copia de d
-    do1:
+    mov.s $f4,$f0 # Mueve el parámetro "d" a f8
+
+    do:
         li $v0,4
-        la $a0,cadpedir_r_s
+        la $a0,cadrs
         syscall
+        # Pedir los valores de r y s
         li $v0,5
         syscall
-        move $t1,$v0 # Carga el valor de la r en t1
+        move $t1,$v0 # Mueve el valor de "r" a t1
         li $v0,5
         syscall
-        move $t2,$v0 # Carga el valor de la s en t2
-        while: bgt $t1,$t2,do1 # Si r es mayor que s el bucle se repite 
-    do1Fin:
+        move $t2,$v0 # Mueve el valor de "s" a t2
+    while: bgt $t1,$t2,do
     move $t3,$t1 # x == r
-    li.s $f8,2.1 # Cargo en el registro f8 un 2.1
-    for: bgt $t3,$t2,forFin 
-        mtc1 $t3,$f10
-        cvt.s.w $f10,$f10 # Convierto la x a flotante y la almaceno en f4
-        mul.s $f5,$f10,$f10 # x * x
-        mul.s $f6,$f5,$f10 # x * x * x
-        mul.s $f2,$f2,$f5 # b * x * x
-        mul.s $f1,$f1,$f6 # a * x * x * x
-        mul.s $f3,$f3,$f10 # c * x
-        add.s $f7,$f1,$f2
-        add.s $f7,$f7,$f3
-        add.s $f7,$f7,$f4 # float f == a*x*x*x + b*x*x + c*x*x + d
-        if: c.le.s $f7,$f8
-            bc1t ifFin
+    for:
+        mtc1 $t3,$f0 # Copia cruda en flotante de simple precisión de la x
+        cvt.s.w $f5,$f0 # Pasar el valor de x a flotante (simple precisión)
+        mul.s $f6,$f5,$f5 # x*x
+        # Multiplicar el parámetro "a"
+        mul.s $f7,$f1,$f6 # a*x*x
+        mul.s $f7,$f7,$f5 # a*x*x*x
+        # Multiplicar el parametro "b"
+        mul.s $f8,$f2,$f6 # b*x*x
+        # Multiplicar el parámetro "c"
+        mul.s $f9,$f3,$f5 # c*x
+        # Sumar todo
+        add.s $f10,$f7,$f8 # float f == a*x*x*x + b*x*x
+        add.s $f10,$f10,$f9 # float f == a*x*x*x + b*x*x + c*x 
+        add.s $f10,$f10,$f4 # float f == a*x*x*x + b*x*x + c*x + d
+        if:
+            li.s $f11,2.1
+            c.le.s $f10,$f11
+            bc1t exit
+            # Mostrar solución
             li $v0,4
-            la $a0,cadsol1
+            la $a0,cadprimparen
             syscall
             li $v0,1
-            move $a0,$t3 # Muestra por consola la x
+            move $a0,$t3 # Muestra el valor de la x
             syscall
             li $v0,4
-            la $a0,cadsol2
+            la $a0,cadsegunparen
             syscall
             li $v0,2
-            mov.s $f12,$f7 # Muestra por consola la solución del polinomio
+            mov.s $f12,$f10 # Muestra el valor del polinomio calculado
             syscall
         ifFin:
-        # Restaurar los parámetros
-        mov.s $f1,$f20
-        mov.s $f2,$f21
-        mov.s $f3,$f22
-        mov.s $f4,$f23
-        add $t3,$t3,1
-        b for
+        add $t3,$t3,1 # x++
+        ble $t3,$t2,for # x <= s se repite el bucle
     forFin:
+
+    exit:
     li $v0,4
-    la $a0,cadfinprogram # Termina el programa 
+    la $a0,cadfinprogram # Fin del programa
     syscall
     li $v0,10
     syscall
-# EXIT
